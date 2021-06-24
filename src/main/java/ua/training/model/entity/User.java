@@ -15,10 +15,11 @@ public class User {
     @Column(length = 20, nullable = false, unique = true)
     private String login;
 
-    @Column(length = 30, nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Column(length = 20, nullable = false)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Column(nullable = false)

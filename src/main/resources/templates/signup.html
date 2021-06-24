@@ -22,7 +22,7 @@
     <form id="signupForm" th:action="@{/signup}" th:object="${user}" method="POST">
         <div class="form-group">
             <span th:if="${#fields.hasErrors('global')}" th:errors="*{global}" class="text-danger">Login in use</span>
-            <span th:if="${#request.getParameter('success') == true}" class="text-success">It was ok</span>
+            <span th:if="${#request.getParameter('success') == 'true'}" class="text-success">It was ok</span>
             <br/>
             <div>
                 <label style="width: 230px;">
@@ -44,7 +44,7 @@
         </div>
     </form>
     <div style="padding-left: 100px;">
-        <a href="/app/login">Login</a>
+        <a href="/login">Login</a>
     </div>
     <div style="padding-left: 110px;">
         <a href="/">Home</a>
