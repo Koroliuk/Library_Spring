@@ -61,13 +61,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         }
                     })
                     .failureUrl("/login?error=true")
-                .permitAll()
+                    .permitAll()
                 .and()
                 .logout()
                     .logoutSuccessUrl("/")
                     .permitAll()
                 .and()
-                .anonymous();
+                .anonymous()
+                .and()
+                    .sessionManagement()
+                    .maximumSessions(1)
+                    .maxSessionsPreventsLogin(true);
     }
 
     @Override

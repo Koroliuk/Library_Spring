@@ -1,11 +1,9 @@
 package ua.training.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,30 +56,12 @@ public class UserController {
         return "redirect:/signup?success=true";
     }
 
-    @GetMapping(value = "/login")
-    public String getLoginPage() {
-        return "login";
+    @GetMapping("/login")
+    public String showLoginForm() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            return "login";
+        }
+        return "redirect:/";
     }
-
-//    @PostMapping(value = "/login")
-//    public String login() {
-//        SecurityContext securityContext = SecurityContextHolder.getContext();
-//        Authentication authentication = securityContext.getAuthentication();
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//        User user = userService.findByLogin(userDetails.getUsername()).orElseThrow(
-//                () -> new UsernameNotFoundException("There is no user with such name"));
-//        if (user.isBlocked()) {
-//            return "forward:blocked";
-//        } else {
-//            if (user.getRole() == Role.READER) {
-//                return "redirect:/reader/home";
-//            } else if (user.getRole() == Role.LIBRARIAN) {
-//                return "redirect:/librarian/home";
-//            } else if (user.getRole() == Role.ADMIN) {
-//                return "redirect:/admin/home";
-//            } else {
-//                return "error/error";
-//            }
-//        }
-//    }
 }
