@@ -26,6 +26,10 @@ public class CustomUserDetails implements UserDetails {
         return user.getRole() == role;
     }
 
+    public boolean isUserBlocked() {
+        return user.isBlocked();
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();
