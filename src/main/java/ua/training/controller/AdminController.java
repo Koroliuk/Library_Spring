@@ -1,6 +1,7 @@
 package ua.training.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,6 +20,7 @@ import ua.training.model.service.UserService;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequestMapping(value = "/admin")
@@ -42,15 +44,17 @@ public class AdminController {
         int amountUsersOnPage = 5;
         int amountOfUserPages = (userService.getAmountOfUsers() - 1) / amountUsersOnPage + 1;
         int amountBooksOnPage = 4;
-        int amountOfBookPages = (userService.getAmountOfUsers() - 1) / amountBooksOnPage + 1;
+        int amountOfBookPages = (bookService.getAmountOfBooks() - 1) / amountBooksOnPage + 1;
         model.addAttribute("tab", tab);
         model.addAttribute("amountOfUserPages", amountOfUserPages);
         model.addAttribute("amountOfBookPages", amountOfBookPages);
+        Locale locale = LocaleContextHolder.getLocale();
+        Language language = languageService.findByName(locale.getLanguage()).orElseThrow(() -> new RuntimeException("There is no such language"));
         if (tab == 1) {
             model.addAttribute("users", userService.findPaginated(page - 1, amountUsersOnPage));
-            model.addAttribute("books", bookService.findPaginated(0, amountBooksOnPage));
+            model.addAttribute("books", bookService.findPaginatedAndLocated(0, amountBooksOnPage, language));
         } else if (tab == 2) {
-            model.addAttribute("books", bookService.findPaginated(page - 1, amountBooksOnPage));
+            model.addAttribute("books", bookService.findPaginatedAndLocated(page - 1, amountBooksOnPage, language));
             model.addAttribute("users", userService.findPaginated(0, amountUsersOnPage));
         } else {
             return "redirect:/error";

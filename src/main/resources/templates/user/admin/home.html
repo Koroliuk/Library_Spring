@@ -70,7 +70,7 @@
             <div th:if="${amountOfUserPages > 1}" class="btn-group" role="group" aria-label="Basic example">
                 <th:block th:each="page : ${#numbers.sequence(1, amountOfUserPages)}">
                     <a class="btn btn-primary btn-rounded" th:text="${page}"
-                       th:href="@{'/admin/home?page='+${page}}"></a>
+                       th:href="@{'/admin/home?tab=1&page='+${page}}"></a>
                 </th:block>
             </div>
         </div>
@@ -79,48 +79,54 @@
                 <span class="h5">Книги: </span>
                 <a class="btn btn-outline-primary btn-sm mt-2 mb-2" href="/admin/addBook">Add book</a>
             </div>
-<!--            <div class="row justify-content-center">-->
-<!--                <div th:if="${books != null || books.size() > 0}" class="col-auto">-->
-<!--                    <table class="table table-responsive table-bordered table-hover">-->
-<!--                        <thead class="thead-light">-->
-<!--                        <tr>-->
-<!--                            <th>№</th>-->
-<!--                            <th>Title</th>-->
-<!--                            <th>Authors</th>-->
-<!--                            <th>Language</th>-->
-<!--                            <th>Edition</th>-->
-<!--                            <th>Date of publish</th>-->
-<!--                            <th>Description</th>-->
-<!--                            <th>Price</th>-->
-<!--                            <th>Amount</th>-->
-<!--                            <th>Action</th>-->
-<!--                        </tr>-->
-<!--                        </thead>-->
-<!--                        <tr th:each="book : ${books}">-->
-<!--                            <td th:text="book.getId()"></td>-->
-<!--                            <td th:text="book.getTitle()"></td>-->
-<!--                            <td th:text="book.getAuthorsString()"></td>-->
-<!--                            <td th:text="book.getLanguage()"></td>-->
-<!--                            <td th:text="book.getEdition().getName()"></td>-->
-<!--                            <td th:text="book.getPublicationDate()"></td>-->
-<!--                            <td th:text="book.getDescription()"></td>-->
-<!--                            <td th:text="book.getPrice()"></td>-->
-<!--                            &lt;!&ndash;                            <td>&ndash;&gt;-->
-<!--&lt;!&ndash;                                <c:if test="${language == 'en'}"><span>${book.price}$</span></c:if>&ndash;&gt;-->
-<!--&lt;!&ndash;                                <c:if test="${language == 'uk'}"><span>${book.price}₴</span></c:if>&ndash;&gt;-->
-<!--&lt;!&ndash;                            </td>&ndash;&gt;-->
-<!--                            <td th:text="book.getCount()"></td>-->
-<!--                            <td class="justify-content-sm-between" style="width: 200px;">-->
-<!--                                <a type="button" class="btn btn-outline-warning" th:href="@{'/admin/editBook?id='=${book.id}}">Edit</a>-->
-<!--                                <a type="button" class="btn btn-outline-danger" th:href="@{'/admin/deleteBook?id='+${book.id}}">Delete</a>-->
+            <div class="row justify-content-center">
+                <div th:if="${books != null || books.size() > 0}" class="col-auto">
+                    <table class="table table-responsive table-bordered table-hover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>№</th>
+                            <th>Title</th>
+                            <th>Authors</th>
+                            <th>Language</th>
+                            <th>Edition</th>
+                            <th>Date of publish</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tr th:each="bookWithTranslate : ${books}">
+                            <td th:text="${bookWithTranslate.book.id}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.title}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.authorsString}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.languageOfBook}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.editionName}"></td>
+                            <td th:text="${bookWithTranslate.book.publicationDate}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.description}"></td>
+                            <td th:text="${bookWithTranslate.book.price}"></td>
+                            <!--                            <td>-->
+<!--                                <c:if test="${language == 'en'}"><span>${bookWithTranslate.price}$</span></c:if>-->
+<!--                                <c:if test="${language == 'uk'}"><span>${bookWithTranslate.price}₴</span></c:if>-->
 <!--                            </td>-->
-<!--                        </tr>-->
-<!--                    </table>-->
-<!--                </div>-->
-<!--                <div th:if="${books == null || books.size() <= 0}" class="col-auto">-->
-<!--                    <span>Пусто</span>-->
-<!--                </div>-->
-<!--            </div>-->
+                            <td th:text="${bookWithTranslate.book.amount}"></td>
+                            <td class="justify-content-sm-between" style="width: 200px;">
+                                <a type="button" class="btn btn-outline-warning" th:href="@{'/admin/editBook?id='+${bookWithTranslate.book.id}}">Edit</a>
+                                <a type="button" class="btn btn-outline-danger" th:href="@{'/admin/deleteBook?id='+${bookWithTranslate.book.id}}">Delete</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div th:if="${books == null || books.size() <= 0}" class="col-auto">
+                    <span>Пусто</span>
+                </div>
+            </div>
+            <div th:if="${amountOfBookPages > 1}" class="btn-group" role="group" aria-label="Basic example">
+                <th:block th:each="page : ${#numbers.sequence(1, amountOfBookPages)}">
+                    <a class="btn btn-primary btn-rounded" th:text="${page}"
+                       th:href="@{'/admin/home?tab=2&page='+${page}}"></a>
+                </th:block>
+            </div>
         </div>
     </div>
 </div>
