@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Admin cabinet</title>
@@ -21,15 +19,19 @@
 <body>
 <div class="container text-center">
     <nav class="nav nav-tabs nav-justified">
-        <a class="nav-item nav-link active"
-           data-toggle="tab" href="#users">Користувачі</a>
-        <!--        <a class="nav-item nav-link active" data-toggle="tab" href="#books">Книги</a>-->
+        <th:block th:if="${tab == 1}">
+            <a class="nav-item nav-link active" data-toggle="tab" href="#users">Користувачі</a>
+            <a class="nav-item nav-link" data-toggle="tab" href="#books">Книги</a>
+        </th:block>
+        <th:block th:if="${tab == 2}">
+            <a class="nav-item nav-link" data-toggle="tab" href="#users">Користувачі</a>
+            <a class="nav-item nav-link active" data-toggle="tab" href="#books">Книги</a>
+        </th:block>
     </nav>
     <br/>
-    <h3 th:text="'Кабінет користувача: '+${#authentication.getName()}"></h3>
+    <h3 th:text="#{admin.home.caption}+' '+${#authentication.getName()}"></h3>
     <div class="tab-content text-center">
-        <div class="tab-pane fade show active text-center"
-             id="users">
+        <div class="tab-pane fade text-center" th:classappend="${tab == 1} ? 'show active' : ''" id="users">
             <div>
                 <span class="h5">Користувачі: </span>
                 <a class="btn btn-outline-primary btn-sm mb-2 mt-2" href="/admin/addLibrarian">Add Librarian</a>
@@ -54,7 +56,8 @@
                                    th:href="@{'/admin/unblockUser?id='+${user.id}}">Розблокувати</a>
                                 <a th:if="${user.isBlocked() == false}" type="button" class="btn btn-outline-danger"
                                    th:href="@{'/admin/blockUser?id='+${user.id}}">Заблокувати</a>
-                                <a th:if="${user.getRole().name().equals('LIBRAIRAN')}" type="button" class="btn btn-outline-danger"
+                                <a th:if="${user.getRole().name().equals('LIBRAIRAN')}" type="button"
+                                   class="btn btn-outline-danger"
                                    th:href="@{'/admin/deleteLibrarian?id='+${user.id}}">Видалити</a>
                             </td>
                         </tr>
@@ -64,73 +67,61 @@
                     <span>Пусто</span>
                 </div>
             </div>
-            <div th:if="${amountOfPages > 1}" class="btn-group" role="group" aria-label="Basic example">
-                <th:block th:each="pageNo : ${#numbers.sequence(1, amountOfPages)}">
-                    <a class="btn btn-primary btn-rounded" th:text="${pageNo}" th:href="@{'/admin/home?pageNo='+${pageNo}}"></a>
+            <div th:if="${amountOfUserPages > 1}" class="btn-group" role="group" aria-label="Basic example">
+                <th:block th:each="page : ${#numbers.sequence(1, amountOfUserPages)}">
+                    <a class="btn btn-primary btn-rounded" th:text="${page}"
+                       th:href="@{'/admin/home?page='+${page}}"></a>
                 </th:block>
             </div>
         </div>
-        <!--    <div class="tab-pane fade <c:if test="${param.tab.equals('2')}">show active</c:if> text-center" id="books">-->
-        <!--    <div>-->
-        <!--        <span class="h5">Книги: </span><a class="btn btn-outline-primary btn-sm mt-2 mb-2" href="${pageContext.request.contextPath}/app/admin/addBook">Add-->
-        <!--        book</a>-->
-        <!--    </div>-->
-        <!--    <div class="row justify-content-center">-->
-        <!--        <div class="col-auto">-->
-        <!--            <c:if test="${requestScope.bookList != null}">-->
-        <!--                <table class="table table-responsive table-bordered table-hover">-->
-        <!--                    <thead class="thead-light">-->
-        <!--                    <tr>-->
-        <!--                        <th>№</th>-->
-        <!--                        <th>Title</th>-->
-        <!--                        <th>Authors</th>-->
-        <!--                        <th>Language</th>-->
-        <!--                        <th>Edition</th>-->
-        <!--                        <th>Date of publish</th>-->
-        <!--                        <th>Description</th>-->
-        <!--                        <th>Price</th>-->
-        <!--                        <th>Amount</th>-->
-        <!--                        <th>Action</th>-->
-        <!--                    </tr>-->
-        <!--                    </thead>-->
-        <!--                    <c:if test="${requestScope.bookList.size() > 0}">-->
-        <!--                        <c:forEach items="${requestScope.bookList}" var="book">-->
-        <!--                            <tr>-->
-        <!--                                <td>${book.id}</td>-->
-        <!--                                <td><c:out value="${book.title}"/></td>-->
-        <!--                                <td>-->
-        <!--                                    <%-->
-        <!--                                    Book book = (Book) pageContext.getAttribute("book");-->
-        <!--                                    StringBuilder authorsString = new StringBuilder();-->
-        <!--                                    for (Author author : book.getAuthors()) {-->
-        <!--                                    authorsString.append(author.getName()).append(",").append(" ");-->
-        <!--                                    }-->
-        <!--                                    authorsString.deleteCharAt(authorsString.length() - 1);-->
-        <!--                                    authorsString.deleteCharAt(authorsString.length() - 1);-->
-        <!--                                    out.print(authorsString.toString());-->
-        <!--                                    %>-->
-        <!--                                </td>-->
-        <!--                                <td>${book.language}</td>-->
-        <!--                                <td>${book.edition.name}</td>-->
-        <!--                                <td>${book.publicationDate}</td>-->
-        <!--                                <td>${book.description}</td>-->
-        <!--                                <td>-->
-        <!--                                    <c:if test="${language == 'en'}"><span>${book.price}$</span></c:if>-->
-        <!--                                    <c:if test="${language == 'uk'}"><span>${book.price}₴</span></c:if>-->
-        <!--                                </td>-->
-        <!--                                <td>${book.count}</td>-->
-        <!--                                <td class="justify-content-sm-between" style="width: 200px;">-->
-        <!--                                    <a type="button" class="btn btn-outline-warning" href="${pageContext.request.contextPath}/app/admin/editBook?id=${book.id}">Edit</a>-->
-        <!--                                    <a type="button" class="btn btn-outline-danger" href="${pageContext.request.contextPath}/app/admin/deleteBook?id=${book.id}">Delete</a>-->
-        <!--                                </td>-->
-        <!--                            </tr>-->
-        <!--                        </c:forEach>-->
-        <!--                    </c:if>-->
-        <!--                </table>-->
-        <!--            </c:if>-->
-        <!--        </div>-->
-<!--        &lt;!&ndash;    </div>&ndash;&gt;-->
-<!--    </div>-->
+        <div class="tab-pane fade text-center" th:classappend="${tab == 2} ? 'show active' : ''" id="books">
+            <div>
+                <span class="h5">Книги: </span>
+                <a class="btn btn-outline-primary btn-sm mt-2 mb-2" href="/admin/addBook">Add book</a>
+            </div>
+<!--            <div class="row justify-content-center">-->
+<!--                <div th:if="${books != null || books.size() > 0}" class="col-auto">-->
+<!--                    <table class="table table-responsive table-bordered table-hover">-->
+<!--                        <thead class="thead-light">-->
+<!--                        <tr>-->
+<!--                            <th>№</th>-->
+<!--                            <th>Title</th>-->
+<!--                            <th>Authors</th>-->
+<!--                            <th>Language</th>-->
+<!--                            <th>Edition</th>-->
+<!--                            <th>Date of publish</th>-->
+<!--                            <th>Description</th>-->
+<!--                            <th>Price</th>-->
+<!--                            <th>Amount</th>-->
+<!--                            <th>Action</th>-->
+<!--                        </tr>-->
+<!--                        </thead>-->
+<!--                        <tr th:each="book : ${books}">-->
+<!--                            <td th:text="book.getId()"></td>-->
+<!--                            <td th:text="book.getTitle()"></td>-->
+<!--                            <td th:text="book.getAuthorsString()"></td>-->
+<!--                            <td th:text="book.getLanguage()"></td>-->
+<!--                            <td th:text="book.getEdition().getName()"></td>-->
+<!--                            <td th:text="book.getPublicationDate()"></td>-->
+<!--                            <td th:text="book.getDescription()"></td>-->
+<!--                            <td th:text="book.getPrice()"></td>-->
+<!--                            &lt;!&ndash;                            <td>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <c:if test="${language == 'en'}"><span>${book.price}$</span></c:if>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <c:if test="${language == 'uk'}"><span>${book.price}₴</span></c:if>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </td>&ndash;&gt;-->
+<!--                            <td th:text="book.getCount()"></td>-->
+<!--                            <td class="justify-content-sm-between" style="width: 200px;">-->
+<!--                                <a type="button" class="btn btn-outline-warning" th:href="@{'/admin/editBook?id='=${book.id}}">Edit</a>-->
+<!--                                <a type="button" class="btn btn-outline-danger" th:href="@{'/admin/deleteBook?id='+${book.id}}">Delete</a>-->
+<!--                            </td>-->
+<!--                        </tr>-->
+<!--                    </table>-->
+<!--                </div>-->
+<!--                <div th:if="${books == null || books.size() <= 0}" class="col-auto">-->
+<!--                    <span>Пусто</span>-->
+<!--                </div>-->
+<!--            </div>-->
+        </div>
     </div>
 </div>
 </body>

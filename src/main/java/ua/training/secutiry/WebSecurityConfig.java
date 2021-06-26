@@ -53,7 +53,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                                 } else if (userDetails.hasRole(Role.LIBRARIAN)) {
                                     redirectURL += "/librarian/home";
                                 } else if (userDetails.hasRole(Role.ADMIN)) {
-                                    redirectURL += "/admin/home?pageNo=1";
+                                    redirectURL += "/admin/home?tab=1&page=1";
                                 } else {
                                     response.sendError(404);
                                 }
