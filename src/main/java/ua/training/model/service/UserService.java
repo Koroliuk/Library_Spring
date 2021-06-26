@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ua.training.model.entity.User;
 import ua.training.model.repository.UserRepository;
@@ -31,7 +32,7 @@ public class UserService {
     }
 
     public List<User> findPaginated(int pageNo, int pageSize) {
-        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<User> pagedResult = userRepository.findAll(paging);
         return pagedResult.toList();
     }
@@ -40,5 +41,17 @@ public class UserService {
         AtomicInteger amount = new AtomicInteger();
         userRepository.findAll().forEach((p) -> amount.getAndIncrement());
         return Integer.parseInt(amount.toString());
+    }
+
+    public Optional<User> findById(long id) {
+        return userRepository.findById(id);
+    }
+
+    public void update(User user) {
+        userRepository.save(user);
+    }
+
+    public void deleteById(long id) {
+        userRepository.deleteById(id);
     }
 }

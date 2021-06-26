@@ -56,7 +56,7 @@
                                    th:href="@{'/admin/unblockUser?id='+${user.id}}">Розблокувати</a>
                                 <a th:if="${user.isBlocked() == false}" type="button" class="btn btn-outline-danger"
                                    th:href="@{'/admin/blockUser?id='+${user.id}}">Заблокувати</a>
-                                <a th:if="${user.getRole().name().equals('LIBRAIRAN')}" type="button"
+                                <a th:if="${user.getRole().name().equals('LIBRARIAN')}" type="button"
                                    class="btn btn-outline-danger"
                                    th:href="@{'/admin/deleteLibrarian?id='+${user.id}}">Видалити</a>
                             </td>

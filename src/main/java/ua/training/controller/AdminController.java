@@ -2,6 +2,7 @@ package ua.training.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -9,9 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import ua.training.model.dto.BookDto;
 import ua.training.model.dto.BookTranslateContainerDto;
 import ua.training.model.dto.BookTranslateDto;
+import ua.training.model.dto.UserDto;
 import ua.training.model.entity.Book;
 import ua.training.model.entity.BookTranslate;
 import ua.training.model.entity.Language;
+import ua.training.model.entity.User;
+import ua.training.model.entity.enums.Role;
 import ua.training.model.service.BookService;
 import ua.training.model.service.BookTranslateService;
 import ua.training.model.service.LanguageService;
@@ -30,14 +34,16 @@ public class AdminController {
     private final BookService bookService;
     private final BookTranslateService bookTranslateService;
     private final LanguageService languageService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AdminController(UserService userService, BookService bookService, BookTranslateService bookTranslateService,
-                           LanguageService languageService) {
+                           LanguageService languageService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.bookService = bookService;
         this.bookTranslateService = bookTranslateService;
         this.languageService = languageService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping(value = "/home")
@@ -201,6 +207,55 @@ public class AdminController {
         bookTranslateService.updateBookTranslate(bookTranslateUa);
         bookTranslateService.updateBookTranslate(bookTranslateEn);
         return "redirect:/admin/editBook?successEditing=true";
+    }
+
+    @GetMapping(value = "/blockUser")
+    public String blockUser(@RequestParam long id) {
+        User user = userService.findById(id).orElseThrow(() -> new RuntimeException("There is on such user"));
+        user.setBlocked(true);
+        userService.update(user);
+        return "redirect:/admin/home?tab=1&page=1";
+    }
+
+    @GetMapping(value = "/unblockUser")
+    public String unblockUser(@RequestParam long id) {
+        User user = userService.findById(id).orElseThrow(() -> new RuntimeException("There is on such user"));
+        user.setBlocked(false);
+        userService.update(user);
+        return "redirect:/admin/home?tab=1&page=1";
+    }
+
+    @GetMapping(value = "/deleteLibrarian")
+    public String deleteLibrarian(@RequestParam long id) {
+        userService.deleteById(id);
+        return "redirect:/admin/home?tab=1&page=1";
+    }
+
+    @GetMapping(value = "/addLibrarian")
+    public String getAddLibrarianPage(Model model, @RequestParam(required = false) boolean successCreation) {
+        model.addAttribute("user", new UserDto());
+        if (successCreation) {
+            model.addAttribute("successCreation", true);
+        } else {
+            model.addAttribute("successCreation", false);
+        }
+        return "/user/admin/librarianForm";
+    }
+
+    @PostMapping(value = "addLibrarian")
+    public String addLibrarian(@Valid @ModelAttribute("user") UserDto userDto, Model model) {
+        User user = new User.Builder()
+                .login(userDto.getLogin())
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .role(Role.LIBRARIAN)
+                .isBlocked(false)
+                .build();
+        if (userService.findByLogin(userDto.getLogin()).isPresent()) {
+            model.addAttribute("createError", true);
+            return "/user/admin/librarianForm";
+        }
+        userService.singUpUser(user);
+        return "redirect:/admin/addLibrarian?successCreation=true";
     }
 
     private BookTranslateDto getDtoFromBookTranslate(BookTranslate bookTranslate) {

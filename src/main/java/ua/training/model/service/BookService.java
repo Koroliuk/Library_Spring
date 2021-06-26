@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.training.model.entity.Book;
@@ -35,7 +36,7 @@ public class BookService {
     }
 
     public List<BookWithTranslate> findPaginatedAndLocated(int pageNo, int pageSize, Language language) {
-        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<Book> pagedResult = bookRepository.findAll(paging);
         List<Book> books = pagedResult.toList();
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
