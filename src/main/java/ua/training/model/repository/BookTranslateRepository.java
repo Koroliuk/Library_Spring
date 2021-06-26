@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface BookTranslateRepository extends CrudRepository<BookTranslate, Long> {
     List<BookTranslate> findBookTranslatesByTitleAndAuthorsString(String title, String authorsString);
     Optional<BookTranslate> findByBookAndLanguage(Book book, Language language);
+    void deleteAllByBook(Book book);
 }

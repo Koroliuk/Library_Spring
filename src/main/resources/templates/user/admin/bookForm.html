@@ -23,9 +23,9 @@
     <form id="form" method="post" th:action="@{'/admin/'+${action}+'Book'+${id != null ? '?id='+id : ''}}">
         <div class="form-group">
             <span th:if="${param.error}" class="text-danger">Перевірте правильність введених даних</span>
-            <span th:if="${creationError == true && action == 'add'}" class="text-danger">"Така книга вже існує"</span>
+            <span th:if="${actionError == true}" class="text-danger">"Така книга вже існує"</span>
             <span th:if="${successCreation == true && action == 'add'}" class="text-success">Книгу успішно додано</span>
-            <span th:if="${#request.getParameter('successEditing') == 'true' && action == 'edit'}" class="text-success">Книгу успішно оновлено</span>
+            <span th:if="${successEditing == true && action == 'edit'}" class="text-success">Книгу успішно оновлено</span>
             <br/>
             <div>
                 <label style="width: 37%;">

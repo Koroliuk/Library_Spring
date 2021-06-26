@@ -32,7 +32,8 @@ public class AdminController {
     private final LanguageService languageService;
 
     @Autowired
-    public AdminController(UserService userService, BookService bookService, BookTranslateService bookTranslateService, LanguageService languageService) {
+    public AdminController(UserService userService, BookService bookService, BookTranslateService bookTranslateService,
+                           LanguageService languageService) {
         this.userService = userService;
         this.bookService = bookService;
         this.bookTranslateService = bookTranslateService;
@@ -49,12 +50,14 @@ public class AdminController {
         model.addAttribute("amountOfUserPages", amountOfUserPages);
         model.addAttribute("amountOfBookPages", amountOfBookPages);
         Locale locale = LocaleContextHolder.getLocale();
-        Language language = languageService.findByName(locale.getLanguage()).orElseThrow(() -> new RuntimeException("There is no such language"));
+        Language language = languageService.findByName(locale.getLanguage())
+                .orElseThrow(() -> new RuntimeException("There is no such language"));
         if (tab == 1) {
             model.addAttribute("users", userService.findPaginated(page - 1, amountUsersOnPage));
             model.addAttribute("books", bookService.findPaginatedAndLocated(0, amountBooksOnPage, language));
         } else if (tab == 2) {
-            model.addAttribute("books", bookService.findPaginatedAndLocated(page - 1, amountBooksOnPage, language));
+            model.addAttribute("books", bookService.findPaginatedAndLocated(page - 1, amountBooksOnPage,
+                    language));
             model.addAttribute("users", userService.findPaginated(0, amountUsersOnPage));
         } else {
             return "redirect:/error";
@@ -85,7 +88,7 @@ public class AdminController {
                           BindingResult bindingResult,
                           Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("id", null);
+//            model.addAttribute("id", null);
             model.addAttribute("action", "add");
             model.addAttribute("book", bookDto);
             model.addAttribute("container", containerDto);
@@ -104,17 +107,114 @@ public class AdminController {
         String authorsStringEn = bookTranslateEn.getAuthorsString();
         if (bookTranslateService.findByTitleAndAuthorsString(titleUa, authorsStringUa).size() > 0
                 || bookTranslateService.findByTitleAndAuthorsString(titleEn, authorsStringEn).size() > 0) {
-            model.addAttribute("id", null);
+//            model.addAttribute("id", null);
             model.addAttribute("action", "add");
             model.addAttribute("book", bookDto);
             model.addAttribute("container", containerDto);
-            model.addAttribute("creationError", true);
+            model.addAttribute("actionError", true);
             return "/user/admin/bookForm";
         }
         bookService.addBook(book);
         bookTranslateService.addBookTranslate(bookTranslateUa);
         bookTranslateService.addBookTranslate(bookTranslateEn);
         return "redirect:/admin/addBook?successCreation=true";
+    }
+
+    @GetMapping(value = "/deleteBook")
+    public String deleteBook(@RequestParam long id) {
+        bookService.deleteBookAndTranslatesByBookId(id);
+        return "redirect:/admin/home?tab=2&page=1";
+    }
+
+    @GetMapping(value = "/editBook")
+    public String getEditPage(@RequestParam long id, @RequestParam(required = false) boolean successEditing,
+                              Model model) {
+        Book book = bookService.findById(id).orElseThrow(() -> new RuntimeException("There is no boo with such id"));
+        Language uk = languageService.findByName("uk")
+                .orElseThrow(() -> new RuntimeException("There is no such language at database"));
+        Language en = languageService.findByName("en")
+                .orElseThrow(() -> new RuntimeException("There is no such language at database"));
+        BookTranslate bookTranslateUa = bookTranslateService.findByBookAndLanguage(book, uk)
+                .orElseThrow(() -> new RuntimeException("There is no such translate"));
+        BookTranslate bookTranslateEn = bookTranslateService.findByBookAndLanguage(book, en)
+                .orElseThrow(() -> new RuntimeException("There is no such translate"));
+        model.addAttribute("id", id);
+        model.addAttribute("action", "edit");
+        BookDto bookDto = getDtoFromBook(book);
+        model.addAttribute("book", bookDto);
+        List<BookTranslateDto> bookTranslateDtoList = new ArrayList<>();
+        bookTranslateDtoList.add(getDtoFromBookTranslate(bookTranslateUa));
+        bookTranslateDtoList.add(getDtoFromBookTranslate(bookTranslateEn));
+        BookTranslateContainerDto containerDto = new BookTranslateContainerDto(bookTranslateDtoList);
+        model.addAttribute("container", containerDto);
+        if (successEditing) {
+            model.addAttribute("successEditing", true);
+        } else {
+            model.addAttribute("successEditing", false);
+        }
+        return "/user/admin/bookForm";
+    }
+
+    @PostMapping(value = "/editBook")
+    public String editBook(@RequestParam long id, @Valid @ModelAttribute("book") BookDto bookDto,
+                          @Valid @ModelAttribute("list") BookTranslateContainerDto containerDto,
+                          BindingResult bindingResult,
+                          Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("id", id);
+            model.addAttribute("action", "add");
+            model.addAttribute("book", bookDto);
+            model.addAttribute("container", containerDto);
+            return "/user/admin/bookForm";
+        }
+        BookTranslateDto bookTranslateDtoUa = containerDto.getDtoList().get(0);
+        BookTranslateDto bookTranslateDtoEn = containerDto.getDtoList().get(1);
+        Language uk = languageService.findByName("uk")
+                .orElseThrow(() -> new RuntimeException("There is no such language at database"));
+        Language en = languageService.findByName("en")
+                .orElseThrow(() -> new RuntimeException("There is no such language at database"));
+        Book book = getBookFromDto(bookDto);
+        BookTranslate bookTranslateUa = getBookTranslateFromDto(bookTranslateDtoUa, uk, book);
+        BookTranslate bookTranslateEn = getBookTranslateFromDto(bookTranslateDtoEn, en, book);
+        String titleUa = bookTranslateUa.getTitle();
+        String titleEn = bookTranslateEn.getTitle();
+        String authorsStringUa = bookTranslateUa.getAuthorsString();
+        String authorsStringEn = bookTranslateEn.getAuthorsString();
+        if (bookTranslateService.findByTitleAndAuthorsString(titleUa, authorsStringUa).size() > 0
+                || bookTranslateService.findByTitleAndAuthorsString(titleEn, authorsStringEn).size() > 0) {
+            model.addAttribute("id", id);
+            model.addAttribute("action", "add");
+            model.addAttribute("book", bookDto);
+            model.addAttribute("container", containerDto);
+            model.addAttribute("actionError", true);
+            return "/user/admin/bookForm";
+        }
+        Book oldBook = bookService.findById(id).orElseThrow(() -> new RuntimeException("There is no such book"));
+        book.setId(oldBook.getId());
+        bookService.updateBook(book);
+        BookTranslate oldUa = bookTranslateService.findByBookAndLanguage(book, uk)
+                .orElseThrow(() -> new RuntimeException("There is no book translate"));
+        BookTranslate oldEn = bookTranslateService.findByBookAndLanguage(book, en)
+                .orElseThrow(() -> new RuntimeException("There is no book translate"));
+        bookTranslateUa.setId(oldUa.getId());
+        bookTranslateEn.setId(oldEn.getId());
+        bookTranslateService.updateBookTranslate(bookTranslateUa);
+        bookTranslateService.updateBookTranslate(bookTranslateEn);
+        return "redirect:/admin/editBook?successEditing=true";
+    }
+
+    private BookTranslateDto getDtoFromBookTranslate(BookTranslate bookTranslate) {
+        BookTranslateDto bookTranslateDto = new BookTranslateDto();
+        bookTranslateDto.setTitle(bookTranslate.getTitle());
+        bookTranslateDto.setAuthorsString(bookTranslate.getAuthorsString());
+        bookTranslateDto.setDescription(bookTranslate.getDescription());
+        bookTranslateDto.setBookLanguage(bookTranslate.getLanguageOfBook());
+        bookTranslateDto.setEdition(bookTranslate.getEditionName());
+        return  bookTranslateDto;
+    }
+
+    private BookDto getDtoFromBook(Book book) {
+        return new BookDto(book.getPublicationDate(), book.getPrice(), book.getAmount());
     }
 
     private BookTranslate getBookTranslateFromDto(BookTranslateDto bookTranslateDto, Language language, Book book) {

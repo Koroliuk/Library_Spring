@@ -21,6 +21,14 @@ public class BookDto {
     @PositiveOrZero(message = "Amount must be positive ot zero")
     private int amount;
 
+    public BookDto() {}
+
+    public BookDto(LocalDate publicationDate, BigDecimal price, int amount) {
+        this.publicationDate = publicationDate;
+        this.price = price;
+        this.amount = amount;
+    }
+
     public LocalDate getPublicationDate() {
         return publicationDate;
     }
