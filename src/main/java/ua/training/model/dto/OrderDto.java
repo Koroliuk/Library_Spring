@@ -1,6 +1,8 @@
 package ua.training.model.dto;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import ua.training.model.entity.BookWithTranslate;
+import ua.training.model.entity.User;
 
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
@@ -21,6 +23,10 @@ public class OrderDto {
 
     @NotBlank
     private String orderType;
+
+    private User user;
+
+    private BookWithTranslate bookWithTranslate;
 
     public LocalDate getStartDate() {
         return startDate;

@@ -49,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                                 redirectURL += "/user/blocked";
                             } else {
                                 if (userDetails.hasRole(Role.READER)) {
-                                    redirectURL += "/reader/home";
+                                    redirectURL += "/reader/home?tab=1&page=1";
                                 } else if (userDetails.hasRole(Role.LIBRARIAN)) {
                                     redirectURL += "/librarian/home";
                                 } else if (userDetails.hasRole(Role.ADMIN)) {
