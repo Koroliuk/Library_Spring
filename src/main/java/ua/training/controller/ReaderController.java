@@ -133,4 +133,10 @@ public class ReaderController {
         orderService.addOrder(order);
         return "redirect:/reader/home?tab=1&page=1&successOrder=true";
     }
+
+    @GetMapping(value = "/deleteOrder")
+    public String deleteOrder(@RequestParam int orderId) {
+        orderService.deleteById(orderId);
+        return "redirect:/reader/home?tab=1&page=1";
+    }
 }

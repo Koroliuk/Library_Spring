@@ -78,4 +78,8 @@ public class OrderService {
             }
         }
     }
+
+    public void deleteById(long id) {
+        orderRepository.deleteById(id);
+    }
 }
