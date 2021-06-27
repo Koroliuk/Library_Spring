@@ -68,4 +68,11 @@ public class BookService {
     public void updateBook(Book book) {
         bookRepository.save(book);
     }
+
+    public BookWithTranslate findByIdLocated(long id,  Language language) {
+        Book book = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("There is no such book"));
+        BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(book, language)
+                .orElseThrow(() -> new RuntimeException("There is no such book translate"));
+        return new BookWithTranslate(book, bookTranslate);
+    }
 }

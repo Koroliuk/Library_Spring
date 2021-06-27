@@ -2,15 +2,36 @@ package ua.training.model.entity;
 
 import ua.training.model.entity.enums.OrderStatus;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "orders")
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
     private Book book;
+
+    @Column(nullable = false)
     private LocalDate startDate;
+
+    @Column(nullable = false)
     private LocalDate endDate;
+
+    @Column(length = 30, nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
+
+    public Order() {
+    }
 
     public static class Builder {
         private long id;
