@@ -82,4 +82,34 @@ public class OrderService {
     public void deleteById(long id) {
         orderRepository.deleteById(id);
     }
+
+    public List<Order> getReceivedOrders(OrderStatus orderStatus, int pageNo, int pageSize, Language language) {
+        Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
+        Page<Order> pagedResult = orderRepository.findAllByOrderStatus(orderStatus, paging);
+        List<Order> orders = pagedResult.toList();
+        for (Order order : orders) {
+            BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(order.getBook(), language)
+                    .orElseThrow(() -> new RuntimeException("There is no such translate"));
+            order.setBookTranslate(bookTranslate);
+        }
+        return orders;
+    }
+
+    public int getAmountByOrderStatus(OrderStatus orderStatus) {
+        AtomicInteger amount = new AtomicInteger();
+        orderRepository.findAllByOrderStatus(orderStatus).forEach((p) -> amount.getAndIncrement());
+        return Integer.parseInt(amount.toString());
+    }
+
+    public void approveOrder(long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("There is no such order"));
+        order.setOrderStatus(OrderStatus.APPROVED);
+        orderRepository.save(order);
+    }
+
+    public void cancelOrder(long id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("There is no such order"));
+        order.setOrderStatus(OrderStatus.CANCELED);
+        orderRepository.save(order);
+    }
 }
