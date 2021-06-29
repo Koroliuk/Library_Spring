@@ -6,14 +6,14 @@ import javax.validation.constraints.Size;
 
 public class UserDto {
 
-    @NotBlank(message = "Login is required")
-    @Size(min = 5, max = 20, message = "The login must have at least 5 and no more than 20 characters")
-    @Pattern(regexp = "^(?!.*\\.\\.)(?!.*\\.$)[^\\W][\\w.]{4,20}$", message = "The login can only contain letters, numbers, \".\" and \"_\"")
+    @NotBlank(message = "{login.validation.required}")
+    @Size(min = 5, max = 20, message = "{login.validation.message1}")
+    @Pattern(regexp = "^(?!.*\\.\\.)(?!.*\\.$)[^\\W][\\w.]{4,20}$", message = "{login.validation.message2}")
     public String login;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 30, message = "The password must be at least 8 and at most 30 characters long")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,30}$", message = "Password must contain at least one letter and number")
+    @NotBlank(message = "{password.validation.required}")
+    @Size(min = 8, max = 30, message = "{password.validation.message1}")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,30}$", message = "{password.validation.message2}")
     public String password;
 
     public String getLogin() {

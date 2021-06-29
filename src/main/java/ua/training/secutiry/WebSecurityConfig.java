@@ -7,26 +7,20 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import ua.training.model.entity.enums.Role;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
+    private final LoginSuccessHandler loginSuccessHandler;
 
     @Autowired
-    public WebSecurityConfig(UserDetailsService userDetailsService) {
+    public WebSecurityConfig(UserDetailsService userDetailsService, LoginSuccessHandler loginSuccessHandler) {
         this.userDetailsService = userDetailsService;
+        this.loginSuccessHandler = loginSuccessHandler;
     }
 
     @Override
@@ -40,27 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                     .loginPage("/login")
                     .usernameParameter("login")
-                    .successHandler(new SavedRequestAwareAuthenticationSuccessHandler() {
-                        @Override
-                        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-                            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-                            String redirectURL = request.getContextPath();
-                            if (userDetails.isUserBlocked()) {
-                                redirectURL += "/user/blocked";
-                            } else {
-                                if (userDetails.hasRole(Role.READER)) {
-                                    redirectURL += "/reader/home?tab=1&page=1";
-                                } else if (userDetails.hasRole(Role.LIBRARIAN)) {
-                                    redirectURL += "/librarian/home?tab=1&page=1";
-                                } else if (userDetails.hasRole(Role.ADMIN)) {
-                                    redirectURL += "/admin/home?tab=1&page=1";
-                                } else {
-                                    response.sendError(404);
-                                }
-                            }
-                            response.sendRedirect(redirectURL);
-                        }
-                    })
+                    .successHandler(loginSuccessHandler)
                     .failureUrl("/login?error=true")
                     .permitAll()
                 .and()
