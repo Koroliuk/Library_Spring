@@ -26,6 +26,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
                 .authorizeRequests()
                     .mvcMatchers("/admin/**").hasAuthority("ADMIN")
                     .mvcMatchers("/librarian/**").hasAuthority("LIBRARIAN")
@@ -39,8 +40,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .permitAll()
                 .and()
                 .logout()
+                    .deleteCookies("JSESSIONID")
+                    .invalidateHttpSession(false)
                     .logoutSuccessUrl("/")
                     .permitAll()
+                .and()
+                .rememberMe()
+                    .userDetailsService(userDetailsService)
+                    .key("2w6f-6f00-gglf-jkhj")
+                    .tokenValiditySeconds(1000)
                 .and()
                 .anonymous()
                 .and()

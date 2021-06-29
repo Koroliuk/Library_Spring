@@ -17,6 +17,7 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<div th:replace="fragment/header.html :: header"></div>
 <nav class="nav nav-tabs nav-justified">
     <th:block th:if="${tab == 1}">
         <a class="nav-item nav-link active" data-toggle="tab" href="#subscription">Абонемент</a>
