@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Add book page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container text-center">
+    <h3 th:if="${action == 'add'}">Додати книгу</h3>
+    <h3 th:if="${action == 'edit'}">Редагувати книгу</h3>
+    <form id="form" method="post" th:action="@{'/admin/'+${action}+'Book'+${id != null ? '?id='+id : ''}}">
+        <div class="form-group">
+            <span th:if="${param.error}" class="text-danger">Перевірте правильність введених даних</span>
+            <span th:if="${actionError == true}" class="text-danger">"Така книга вже існує"</span>
+            <span th:if="${successCreation == true && action == 'add'}" class="text-success">Книгу успішно додано</span>
+            <span th:if="${successEditing == true && action == 'edit'}" class="text-success">Книгу успішно оновлено</span>
+            <br/>
+            <div>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="titleUa" th:field="${container.dtoList[0].title}" placeholder="Заголовок"
+                           th:value="${container.dtoList[0].title != null ? container.dtoList[0].title : ''}">
+                </label>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="titleEn" th:field="${container.dtoList[1].title}" placeholder="Title"
+                           th:value="${container.dtoList[1].title != null ? container.dtoList[1].title : ''}">
+                </label>
+                <br/>
+                <span class="text-danger" id="titleMessage"></span>
+            </div>
+            <div>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="authorsUa" th:field="${container.dtoList[0].authorsString}" placeholder="Автори"
+                           th:value="${container.dtoList[0].authorsString != null ? container.dtoList[0].authorsString : ''}">
+                </label>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="authorsEn" th:field="${container.dtoList[1].authorsString}" placeholder="Authors"
+                           th:value="${container.dtoList[1].authorsString != null ? container.dtoList[1].authorsString : ''}">
+                </label>
+                <br/>
+                <span class="text-danger" id="authorsMessage"></span>
+            </div>
+            <div>
+                <label style="width: 75%;">
+                    <textarea class="form-control" id="descriptionUa" th:field="${container.dtoList[0].description}" placeholder="Опис"
+                              wrap="soft" th:text="${container.dtoList[0].description != null ? container.dtoList[0].description : ''}"></textarea>
+                </label>
+                <label style="width: 75%;">
+                    <textarea class="form-control" id="descriptionEn" th:field="${container.dtoList[1].description}" placeholder="Description"
+                              wrap="soft" th:text="${container.dtoList[1].description != null ? container.dtoList[1].description : ''}"></textarea>
+                </label>
+                <br/>
+                <span class="text-danger" id="descriptionMessage"></span>
+            </div>
+            <div>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="bookLanguageUa" th:field="${container.dtoList[0].bookLanguage}" placeholder="Мова"
+                           th:value="${container.dtoList[0].bookLanguage != null ? container.dtoList[0].bookLanguage : ''}">
+                </label>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="bookLanguageEn" th:field="${container.dtoList[1].bookLanguage}" placeholder="Language"
+                           th:value="${container.dtoList[1].bookLanguage != null ? container.dtoList[1].bookLanguage : ''}">
+                </label>
+                <br/>
+                <span class="text-danger" id="bookLanguageMessage"></span>
+            </div>
+            <div>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="editionUa" th:field="${container.dtoList[0].edition}" placeholder="Видання"
+                           th:value="${container.dtoList[0].edition != null ? container.dtoList[0].edition : ''}">
+                </label>
+                <label style="width: 37%;">
+                    <input class="form-control" type="text" id="editionEn" th:field="${container.dtoList[1].edition}" placeholder="Edition"
+                           th:value="${container.dtoList[1].edition != null ? container.dtoList[1].edition : ''}">
+                </label>
+                <br/>
+                <span class="text-danger" id="editionMessage"></span>
+            </div>
+            <div>
+                <span class="text-dark h5">Дата видання:</span>
+                <br/>
+                <label style="width: 75%;">
+                    <input class="form-control" type="date" id="publicationDate" th:field="${book.publicationDate}"
+                           placeholder="Date of publication"
+                           th:value="${book.publicationDate != null ? book.publicationDate : ''}">
+                </label>
+                <br/>
+                <span class="text-danger" id="publicationDateMessage"></span>
+            </div>
+            <div>
+                <label style="width: 28%;">
+                    <input class="form-control" type="text" id="price" th:field="${book.price}" placeholder="Price"
+                           th:value="${book.price != null ? book.price : ''}">
+                </label>
+                <label for="currency">
+                    <select style="width: 75px;" class="custom-select-sm" id="currency" name="currency"
+                            onchange="chooseType()">
+                        <option value="uan">UAN</option>
+                        <option value="usd">USD</option>
+                    </select>
+                </label>
+                <label style="width: 35%;">
+                    <input class="form-control" type="text" id="amount" th:field="${book.amount}" placeholder="Amount"
+                           th:value="${book.amount != null ? book.amount : ''}">
+                </label>
+                <span class="text-danger" id="countMessage"></span>
+                <span class="text-danger" id="priceMessage"></span>
+                <br/>
+            </div>
+        </div>
+        <div>
+            <input type="submit" class="btn btn-outline-info" value="Зберегти">
+        </div>
+    </form>
+    <div>
+        <a style="padding-left: 400px;" href="/admin/home?tab=2&page=1">To home</a>
+    </div>
+</div>
+</body>
+<!--<script type="text/javascript" th:src="@{user/admin/js/bookForm.js}"></script>-->
+</html>

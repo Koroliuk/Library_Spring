@@ -1,10 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Admin cabinet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
 </head>
 <body>
-    <h1>Admin home</h1>
+<div class="container text-center">
+    <nav class="nav nav-tabs nav-justified">
+        <th:block th:if="${tab == 1}">
+            <a class="nav-item nav-link active" data-toggle="tab" href="#users">Користувачі</a>
+            <a class="nav-item nav-link" data-toggle="tab" href="#books">Книги</a>
+        </th:block>
+        <th:block th:if="${tab == 2}">
+            <a class="nav-item nav-link" data-toggle="tab" href="#users">Користувачі</a>
+            <a class="nav-item nav-link active" data-toggle="tab" href="#books">Книги</a>
+        </th:block>
+    </nav>
+    <br/>
+    <h3 th:text="#{admin.home.caption}+' '+${#authentication.getName()}"></h3>
+    <div class="tab-content text-center">
+        <div class="tab-pane fade text-center" th:classappend="${tab == 1} ? 'show active' : ''" id="users">
+            <div>
+                <span class="h5">Користувачі: </span>
+                <a class="btn btn-outline-primary btn-sm mb-2 mt-2" href="/admin/addLibrarian">Add Librarian</a>
+            </div>
+            <div class="row justify-content-center">
+                <div th:if="${users != null || users.size() > 0}" class="col-auto">
+                    <table class="table table-responsive table-bordered table-hover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>№</th>
+                            <th>Login</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tr th:each="user : ${users}">
+                            <td th:text="${user.getId()}"></td>
+                            <td th:text="${user.getLogin()}"></td>
+                            <td th:text="${user.getRole().name()}"></td>
+                            <td>
+                                <a th:if="${user.isBlocked() == true}" type="button" class="btn btn-outline-success"
+                                   th:href="@{'/admin/unblockUser?id='+${user.id}}">Розблокувати</a>
+                                <a th:if="${user.isBlocked() == false}" type="button" class="btn btn-outline-danger"
+                                   th:href="@{'/admin/blockUser?id='+${user.id}}">Заблокувати</a>
+                                <a th:if="${user.getRole().name().equals('LIBRARIAN')}" type="button"
+                                   class="btn btn-outline-danger"
+                                   th:href="@{'/admin/deleteLibrarian?id='+${user.id}}">Видалити</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div th:if="${users == null || users.size() <= 0}" class="col-auto">
+                    <span>Пусто</span>
+                </div>
+            </div>
+            <div th:if="${amountOfUserPages > 1}" class="btn-group" role="group" aria-label="Basic example">
+                <th:block th:each="page : ${#numbers.sequence(1, amountOfUserPages)}">
+                    <a class="btn btn-primary btn-rounded" th:text="${page}"
+                       th:href="@{'/admin/home?tab=1&page='+${page}}"></a>
+                </th:block>
+            </div>
+        </div>
+        <div class="tab-pane fade text-center" th:classappend="${tab == 2} ? 'show active' : ''" id="books">
+            <div>
+                <span class="h5">Книги: </span>
+                <a class="btn btn-outline-primary btn-sm mt-2 mb-2" href="/admin/addBook">Add book</a>
+            </div>
+            <div class="row justify-content-center">
+                <div th:if="${books != null || books.size() > 0}" class="col-auto">
+                    <table class="table table-responsive table-bordered table-hover">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>№</th>
+                            <th>Title</th>
+                            <th>Authors</th>
+                            <th>Language</th>
+                            <th>Edition</th>
+                            <th>Date of publish</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tr th:each="bookWithTranslate : ${books}">
+                            <td th:text="${bookWithTranslate.book.id}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.title}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.authorsString}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.languageOfBook}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.editionName}"></td>
+                            <td th:text="${bookWithTranslate.book.publicationDate}"></td>
+                            <td th:text="${bookWithTranslate.bookTranslate.description}"></td>
+                            <td th:text="${bookWithTranslate.book.price}"></td>
+                            <!--                            <td>-->
+<!--                                <c:if test="${language == 'en'}"><span>${bookWithTranslate.price}$</span></c:if>-->
+<!--                                <c:if test="${language == 'uk'}"><span>${bookWithTranslate.price}₴</span></c:if>-->
+<!--                            </td>-->
+                            <td th:text="${bookWithTranslate.book.amount}"></td>
+                            <td class="justify-content-sm-between" style="width: 200px;">
+                                <a type="button" class="btn btn-outline-warning" th:href="@{'/admin/editBook?id='+${bookWithTranslate.book.id}}">Edit</a>
+                                <a type="button" class="btn btn-outline-danger" th:href="@{'/admin/deleteBook?id='+${bookWithTranslate.book.id}}">Delete</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div th:if="${books == null || books.size() <= 0}" class="col-auto">
+                    <span>Пусто</span>
+                </div>
+            </div>
+            <div th:if="${amountOfBookPages > 1}" class="btn-group" role="group" aria-label="Basic example">
+                <th:block th:each="page : ${#numbers.sequence(1, amountOfBookPages)}">
+                    <a class="btn btn-primary btn-rounded" th:text="${page}"
+                       th:href="@{'/admin/home?tab=2&page='+${page}}"></a>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

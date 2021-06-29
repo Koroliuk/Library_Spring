@@ -2,15 +2,48 @@ package ua.training.model.entity;
 
 import ua.training.model.entity.enums.OrderStatus;
 
+import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Period;
 
+@Entity
+@Table(name = "orders")
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
     private Book book;
+
+    @Transient
+    private BookTranslate bookTranslate;
+
+    @Column(nullable = false)
     private LocalDate startDate;
+
+    @Column(nullable = false)
     private LocalDate endDate;
+
+    @Column(length = 30, nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
+
+    public BigDecimal getFine() {
+        LocalDate now = LocalDate.now();
+        int amountOfDays = Period.between(endDate, now).getDays();
+        return book.getPrice().multiply(new
+                BigDecimal(amountOfDays)).multiply(BigDecimal.valueOf(0.01));
+    }
+
+    public Order() {
+    }
 
     public static class Builder {
         private long id;
@@ -110,5 +143,13 @@ public class Order {
 
     public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    public BookTranslate getBookTranslate() {
+        return bookTranslate;
+    }
+
+    public void setBookTranslate(BookTranslate bookTranslate) {
+        this.bookTranslate = bookTranslate;
     }
 }

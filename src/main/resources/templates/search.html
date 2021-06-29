@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Search Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container text-center">
+    <div class="row justify-content-center">
+        <div>
+            <form method="post" action="/search?page=1">
+                <label>
+                    <input class="form-control me-2 mr-2" type="text" name="keyWords" placeholder="Пошук">
+                </label>
+                <input class="btn btn-outline-success p-1" type="submit" value="Знайти">
+            </form>
+        </div>
+        <div th:if="${books != null || books.size() > 0}" class="col-auto">
+            <table class="table table-responsive table-bordered table-hover">
+                <thead class="thead-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Authors</th>
+                    <th>Language</th>
+                    <th>Edition</th>
+                    <th>Date of publish</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <div class="mr-3 mt-2 mb-2">
+                    <span>Сортувати за: </span>
+                    <a type="button" class="btn btn-outline-primary btn-sm"
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=title&sortType='+${(sortBy.equals('title') && sortType.equals('asc')) ? 'dec' : 'asc'}}">назвою</a>
+                    <a type="button" class="btn btn-outline-primary btn-sm"
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=authors&sortType='+${(sortBy.equals('authors') && sortType.equals('asc')) ? 'dec' : 'asc'}}">автором</a>
+                    <a type="button" class="btn btn-outline-primary btn-sm"
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=edition&sortType='+${(sortBy.equals('edition') && sortType.equals('asc')) ? 'dec' : 'asc'}}">виданням</a>
+                    <a type="button" class="btn btn-outline-primary btn-sm"
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=date&sortType='+${(sortBy.equals('date') && sortType.equals('asc')) ? 'dec' : 'asc'}}">датою</a>
+                </div>
+                <tr th:each="bookWithTranslate : ${books}">
+                    <td th:text="${bookWithTranslate.bookTranslate.title}"></td>
+                    <td th:text="${bookWithTranslate.bookTranslate.authorsString}"></td>
+                    <td th:text="${bookWithTranslate.bookTranslate.languageOfBook}"></td>
+                    <td th:text="${bookWithTranslate.bookTranslate.editionName}"></td>
+                    <td th:text="${bookWithTranslate.book.publicationDate}"></td>
+                    <td th:text="${bookWithTranslate.bookTranslate.description}"></td>
+                    <td class="justify-content-sm-between" style="width: 200px;">
+                        <a sec:authorize="isAuthenticated()" type="button" class="btn btn-outline-info"
+                           th:href="@{'/reader/orderBook?id='+${bookWithTranslate.book.id}}">Order</a>
+                        <span sec:authorize="isAnonymous()">-</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div th:if="${books == null || books.size() <= 0}" class="col-auto">
+            <span>Пусто</span>
+        </div>
+    </div>
+    <div th:if="${amountOfBookPages > 1}" class="btn-group" role="group" aria-label="Basic example">
+        <th:block th:each="page : ${#numbers.sequence(1, amountOfBookPages)}">
+            <a class="btn btn-primary btn-rounded" th:text="${page}"
+               th:href="@{'/search?page='+${page}}"></a>
+        </th:block>
+    </div>
+</div>
+</body>
+</html>

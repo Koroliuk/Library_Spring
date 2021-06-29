@@ -44,18 +44,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         @Override
                         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
                             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-                            String username = userDetails.getUsername();
-                            System.out.println("The user " + username + " has logged in.");
-                            System.out.println(request.getContextPath());
                             String redirectURL = request.getContextPath();
-                            if (userDetails.hasRole(Role.READER)) {
-                                redirectURL += "/reader/home";
-                            } else if (userDetails.hasRole(Role.LIBRARIAN)) {
-                                redirectURL += "/librarian/home";
-                            } else if (userDetails.hasRole(Role.ADMIN)) {
-                                redirectURL += "/admin/home";
+                            if (userDetails.isUserBlocked()) {
+                                redirectURL += "/user/blocked";
                             } else {
-                                response.sendError(404);
+                                if (userDetails.hasRole(Role.READER)) {
+                                    redirectURL += "/reader/home?tab=1&page=1";
+                                } else if (userDetails.hasRole(Role.LIBRARIAN)) {
+                                    redirectURL += "/librarian/home?tab=1&page=1";
+                                } else if (userDetails.hasRole(Role.ADMIN)) {
+                                    redirectURL += "/admin/home?tab=1&page=1";
+                                } else {
+                                    response.sendError(404);
+                                }
                             }
                             response.sendRedirect(redirectURL);
                         }

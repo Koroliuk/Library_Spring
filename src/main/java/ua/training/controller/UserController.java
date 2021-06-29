@@ -64,4 +64,9 @@ public class UserController {
         }
         return "redirect:/";
     }
+
+    @GetMapping("/user/blocked")
+    public String getBlockedPage() {
+        return "blocked";
+    }
 }
