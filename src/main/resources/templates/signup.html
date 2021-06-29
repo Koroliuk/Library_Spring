@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Registration Page</title>
@@ -17,45 +18,56 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<div th:replace="fragment/header.html :: header"></div>
 <div class="container text-center" style="margin-top: 10%;">
-    <h3>Sign Up</h3>
-    <form id="signupForm" th:action="@{/signup}" th:object="${user}" method="POST">
+    <h3 th:text="#{signup.title}"></h3>
+    <form id="signupForm" th:action="@{/signup}" th:object="${user}" method="post">
         <div class="form-group">
-            <span th:if="${#fields.hasErrors('global')}" th:errors="*{global}" class="text-danger">Login in use</span>
-            <span th:if="${#request.getParameter('success') == 'true'}" class="text-success">It was ok</span>
-            <br/>
+            <span class="text-danger" th:if="${#fields.hasErrors('global')}" th:errors="*{global}"
+                  th:text="#{signup.error.message.login}"></span>
+            <span class="text-success" th:if="${#request.getParameter('success') == 'true'}"
+                  th:text="#{signup.success.message}"></span>
             <div>
                 <label style="width: 230px;">
-                    <input class="form-control" type="text" id="login" th:field="*{login}" placeholder="Login">
+                    <input class="form-control" type="text" id="login" th:field="*{login}"
+                           th:placeholder="#{placeholder.login}">
                     <span class="text-danger" style="text-align: justify;" id="loginMessage"></span>
-                    <span th:if="${#fields.hasErrors('login')}" th:errors="*{login}" class="text-danger" style="text-align: justify;">Check input data</span>
+                    <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('login')}"
+                          th:errors="*{login}" th:text="#{signup.error.message.validation.login}"></span>
                 </label>
             </div>
             <div>
                 <label style="width: 230px;">
-                    <input  class="form-control" type="password" id="password" th:field="*{password}" placeholder="Password">
+                    <input class="form-control" type="password" id="password" th:field="*{password}"
+                           placeholder="Password">
                     <span class="text-danger" style="text-align: justify;" id="passwordMessage"></span>
-                    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger" style="text-align: justify;">Check input data</span>
+                    <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('password')}"
+                          th:errors="*{password}" th:text="#{signup.error.message.validation.password}"></span>
                 </label>
             </div>
             <div>
-                <input type="submit" class="btn btn-outline-info" value="Do it">
+                <input type="submit" class="btn btn-outline-info" th:value="#{signup.action}">
             </div>
         </div>
     </form>
     <div style="padding-left: 100px;">
-        <a href="/login">Login</a>
+        <a href="/login" th:text="#{signup.to.login}"></a>
     </div>
     <div style="padding-left: 110px;">
-        <a href="/">Home</a>
+        <a href="/" th:text="#{signup.to.home}"></a>
     </div>
 </div>
 </body>
-<script type="text/javascript">
-    const loginValidateMessage1 = '<fmt:message key="signup.login.validation.message1"/>';
-    const loginValidateMessage2 = '<fmt:message key="signup.login.validation.message2"/>';
-    const passwordValidateMessage1 = '<fmt:message key="signup.password.validation.message1"/>';
-    const passwordValidateMessage2 = '<fmt:message key="signup.password.validation.message2"/>';
+<div th:replace="fragment/footer.html :: footer"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    const loginValidateMessage1 = /*[[#{signup.login.validation.message1}]]*/ '';
+    const loginValidateMessage2 = /*[[#{signup.login.validation.message2}]]*/ '';
+    const passwordValidateMessage1 = /*[[#{signup.password.validation.message1}]]*/ '';
+    const passwordValidateMessage2 = /*[[#{signup.password.validation.message2}]]*/ '';
+
+    /*]]>*/
 </script>
 <script type="text/javascript" th:src="@{/js/signup.js}"></script>
 </html>
