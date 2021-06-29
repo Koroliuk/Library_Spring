@@ -48,6 +48,30 @@ public class BookService {
         return bookWithTranslateList;
     }
 
+    public List<BookWithTranslate> findPaginatedAndLocatedWithSortByAndSortType(int pageNo, int pageSize, Language language, String sortBy, String sortType) {
+            if (sortBy == null || sortBy.trim().equals("")) {
+                sortBy = "id";
+            }
+            if (sortType == null || sortType.trim().equals("")) {
+                sortType = "asc";
+            }
+            Pageable paging;
+            if (sortType.trim().equals("dec")) {
+                paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+            } else {
+                paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+            }
+        Page<Book> pagedResult = bookRepository.findAll(paging);
+        List<Book> books = pagedResult.toList();
+        List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
+        for (Book book : books) {
+            BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(book, language).orElseThrow(() -> new RuntimeException("There is no such translate"));
+            BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
+            bookWithTranslateList.add(bookWithTranslate);
+        }
+        return bookWithTranslateList;
+    }
+
     public Optional<Book> findById(long id) {
         return bookRepository.findById(id);
     }
@@ -74,5 +98,39 @@ public class BookService {
         BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(book, language)
                 .orElseThrow(() -> new RuntimeException("There is no such book translate"));
         return new BookWithTranslate(book, bookTranslate);
+    }
+
+    public int getAmountOfBooksByKeyWords(String keyWords, Language language) {
+        AtomicInteger amount = new AtomicInteger();
+        bookTranslateRepository
+                .findAllByTitleContainsOrAuthorsStringContainsIgnoreCaseAndLanguage(keyWords, keyWords, language).forEach((p) -> amount.getAndIncrement());
+        return Integer.parseInt(amount.toString());
+    }
+
+    public List<BookWithTranslate> findPaginatedAndLocatedByKeyWords(String keyWords, Language language, int pageNo,
+                                                                     int pageSize, String sortBy, String sortType) {
+        if (sortBy == null || sortBy.trim().equals("")) {
+            sortBy = "id";
+        }
+        if (sortType == null || sortType.trim().equals("")) {
+            sortType = "asc";
+        }
+        Pageable paging;
+        if (sortType.trim().equals("dec")) {
+            paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+        } else {
+            paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
+        }
+        Page<BookTranslate> page = bookTranslateRepository.findAllByTitleContainsOrAuthorsStringContainsIgnoreCaseAndLanguage(keyWords,
+                keyWords, language, paging);
+        List<BookTranslate> books = page.toList();
+        List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
+        for (BookTranslate bookTranslate : books) {
+            long bookId = bookTranslate.getBook().getId();
+            Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
+            BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
+            bookWithTranslateList.add(bookWithTranslate);
+        }
+        return bookWithTranslateList;
     }
 }
