@@ -23,7 +23,7 @@
     <h3 th:text="#{signup.title}"></h3>
     <form id="signupForm" th:action="@{/signup}" th:object="${user}" method="post">
         <div class="form-group">
-            <span class="text-danger" th:if="${#fields.hasErrors('global')}" th:errors="*{global}"
+            <span class="text-danger" th:if="${#fields.hasErrors('global')}"
                   th:text="#{signup.error.message.login}"></span>
             <span class="text-success" th:if="${#request.getParameter('success') == 'true'}"
                   th:text="#{signup.success.message}"></span>
@@ -39,7 +39,7 @@
             <div>
                 <label style="width: 230px;">
                     <input class="form-control" type="password" id="password" th:field="*{password}"
-                           placeholder="Password">
+                           th:placeholder="#{placeholder.password}">
                     <span class="text-danger" style="text-align: justify;" id="passwordMessage"></span>
                     <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('password')}"
                           th:errors="*{password}" th:text="#{signup.error.message.validation.password}"></span>
@@ -62,10 +62,10 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
 
-    const loginValidateMessage1 = /*[[#{signup.login.validation.message1}]]*/ '';
-    const loginValidateMessage2 = /*[[#{signup.login.validation.message2}]]*/ '';
-    const passwordValidateMessage1 = /*[[#{signup.password.validation.message1}]]*/ '';
-    const passwordValidateMessage2 = /*[[#{signup.password.validation.message2}]]*/ '';
+    const loginValidateMessage1 = /*[[#{login.validation.message1}]]*/ '';
+    const loginValidateMessage2 = /*[[#{login.validation.message2}]]*/ '';
+    const passwordValidateMessage1 = /*[[#{password.validation.message1}]]*/ '';
+    const passwordValidateMessage2 = /*[[#{password.validation.message2}]]*/ '';
 
     /*]]>*/
 </script>
