@@ -1,8 +1,5 @@
 package ua.training.controller;
 
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +13,6 @@ import ua.training.model.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Locale;
 
 @Controller
 @RequestMapping(value = "/reader")
@@ -37,90 +33,87 @@ public class ReaderController {
 
     @GetMapping(value = "/home")
     public String getReaderHomePage(@RequestParam int tab, @RequestParam int page, @RequestParam(required = false) boolean successOrder, Model model) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String username = ((UserDetails) principal).getUsername();
-        User user = userService.findByLogin(username)
-                .orElseThrow(() -> new RuntimeException("There is no such user"));
-        Locale locale = LocaleContextHolder.getLocale();
-        Language language = languageService.findByName(locale.getLanguage())
-                .orElseThrow(() -> new RuntimeException("There is no such language"));
-        orderService.checkUserOrders(user);
-        int amount1 = orderService.getAmountByUserAnd2OrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE);
-        int amount2 = orderService.getAmountByUserAndOrderStatus(user, OrderStatus.READER_HOLE);
-        int amount3 = orderService.getAmountByUserAnd2OrderStatus(user, OrderStatus.CANCELED, OrderStatus.RECEIVED);
+        User currentUser = userService.getCurrentUser();
+        Language currentLanguage = languageService.getCurrentLanguage();
+
+        orderService.checkUserOrders(currentUser);
+
+        int amountOrdersOnPage = 5;
+        int totalAmount1 = orderService.getAmountByUserAnd2OrderStatus(currentUser, OrderStatus.APPROVED, OrderStatus.OVERDUE);
+        int totalAmount2 = orderService.getAmountByUserAndOrderStatus(currentUser, OrderStatus.READER_HOLE);
+        int totalAmount3 = orderService.getAmountByUserAnd2OrderStatus(currentUser, OrderStatus.CANCELED, OrderStatus.RECEIVED);
+        int amount1 = (totalAmount1 - 1) / amountOrdersOnPage + 1;
+        int amount2 = (totalAmount2 - 1) / amountOrdersOnPage + 1;
+        int amount3 = (totalAmount3 - 1) / amountOrdersOnPage + 1;
+
+        List<Order> approvedAndOverdueOrders;
+        List<Order> readingHoleOrders;
+        List<Order> canceledAndReceivedOrders;
         if (tab == 1) {
-            List<Order> approvedAndOverdueOrders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.APPROVED,
-                    OrderStatus.OVERDUE, page - 1, 5, language);
-            List<Order> readingHoleOrders = orderService.getReadingHoleOrders(user, OrderStatus.READER_HOLE, 0,
-                    5, language);
-            List<Order> canceledAndReceivedOrders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.CANCELED,
-                    OrderStatus.RECEIVED, 0, 5, language);
-            model.addAttribute("orders1", approvedAndOverdueOrders);
-            model.addAttribute("orders2", readingHoleOrders);
-            model.addAttribute("orders3", canceledAndReceivedOrders);
+            approvedAndOverdueOrders = orderService.findAllByUserAnd2OrderStatus(currentUser, OrderStatus.APPROVED,
+                    OrderStatus.OVERDUE, page - 1, amountOrdersOnPage, currentLanguage);
+            readingHoleOrders = orderService.findAllByUserAndOrderStatus(currentUser, OrderStatus.READER_HOLE, 0,
+                    amountOrdersOnPage, currentLanguage);
+            canceledAndReceivedOrders = orderService.findAllByUserAnd2OrderStatus(currentUser, OrderStatus.CANCELED,
+                    OrderStatus.RECEIVED, 0, amountOrdersOnPage, currentLanguage);
+
         } else if (tab == 2) {
-            List<Order> approvedAndOverdueOrders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.APPROVED,
-                    OrderStatus.OVERDUE, 0, 5, language);
-            List<Order> readingHoleOrders = orderService.getReadingHoleOrders(user, OrderStatus.READER_HOLE, page - 1,
-                    5, language);
-            List<Order> canceledAndReceivedOrders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.CANCELED,
-                    OrderStatus.RECEIVED, 0, 5, language);
-            model.addAttribute("orders1", approvedAndOverdueOrders);
-            model.addAttribute("orders2", readingHoleOrders);
-            model.addAttribute("orders3", canceledAndReceivedOrders);
+            approvedAndOverdueOrders = orderService.findAllByUserAnd2OrderStatus(currentUser, OrderStatus.APPROVED,
+                    OrderStatus.OVERDUE, 0, amountOrdersOnPage, currentLanguage);
+            readingHoleOrders = orderService.findAllByUserAndOrderStatus(currentUser, OrderStatus.READER_HOLE, page - 1,
+                    amountOrdersOnPage, currentLanguage);
+            canceledAndReceivedOrders = orderService.findAllByUserAnd2OrderStatus(currentUser, OrderStatus.CANCELED,
+                    OrderStatus.RECEIVED, 0, amountOrdersOnPage, currentLanguage);
         } else if (tab == 3) {
-            List<Order> approvedAndOverdueOrders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.APPROVED,
-                    OrderStatus.OVERDUE, 0, 5, language);
-            List<Order> readingHoleOrders = orderService.getReadingHoleOrders(user, OrderStatus.READER_HOLE, 0,
-                    5, language);
-            List<Order> canceledAndReceivedOrders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.CANCELED,
-                    OrderStatus.RECEIVED, page - 1, 5, language);
-            model.addAttribute("orders1", approvedAndOverdueOrders);
-            model.addAttribute("orders2", readingHoleOrders);
-            model.addAttribute("orders3", canceledAndReceivedOrders);
+            approvedAndOverdueOrders = orderService.findAllByUserAnd2OrderStatus(currentUser, OrderStatus.APPROVED,
+                    OrderStatus.OVERDUE, 0, amountOrdersOnPage, currentLanguage);
+            readingHoleOrders = orderService.findAllByUserAndOrderStatus(currentUser, OrderStatus.READER_HOLE, 0,
+                    amountOrdersOnPage, currentLanguage);
+            canceledAndReceivedOrders = orderService.findAllByUserAnd2OrderStatus(currentUser, OrderStatus.CANCELED,
+                    OrderStatus.RECEIVED, page - 1, amountOrdersOnPage, currentLanguage);
         } else {
             return "redirect:/error";
         }
-        model.addAttribute("amount1", (amount1 - 1) / 5 + 1);
-        model.addAttribute("amount2", (amount2 - 1) / 5 + 1);
-        model.addAttribute("amount3", (amount3 - 1) / 5 + 1);
-        model.addAttribute("tab", tab);
-        model.addAttribute("currPage", page);
         if (successOrder) {
             model.addAttribute("successOrder", true);
         } else {
             model.addAttribute("successOrder", false);
         }
+        model.addAttribute("tab", tab)
+                .addAttribute("currPage", page)
+                .addAttribute("amount1", amount1)
+                .addAttribute("amount2", amount2)
+                .addAttribute("amount3", amount3)
+                .addAttribute("orders1", approvedAndOverdueOrders)
+                .addAttribute("orders2", readingHoleOrders)
+                .addAttribute("orders3", canceledAndReceivedOrders);
         return "/user/reader/home";
     }
 
     @GetMapping(value = "/orderBook")
     public String getOrderBookPage(@RequestParam long id, Model model) {
-        Locale locale = LocaleContextHolder.getLocale();
-        Language language = languageService.findByName(locale.getLanguage())
-                .orElseThrow(() -> new RuntimeException("There is no such language"));
-        BookWithTranslate bookWithTranslate = bookService.findByIdLocated(id, language);
-        model.addAttribute("bookWithTranslate", bookWithTranslate);
-        model.addAttribute("order", new OrderDto());
+        Language currLanguage = languageService.getCurrentLanguage();
+        BookWithTranslate bookWithTranslate = bookService.findByIdLocated(id, currLanguage);
+        model.addAttribute("bookWithTranslate", bookWithTranslate)
+                .addAttribute("order", new OrderDto());
         return "/user/reader/orderForm";
     }
 
     @PostMapping(value = "/orderBook")
     public String orderBook(@Valid @ModelAttribute("order") OrderDto orderDto, @RequestParam long bookId,
                             @RequestParam String userLogin, Model model) {
+        Language currLanguage = languageService.getCurrentLanguage();
         Book book = bookService.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
         if (book.getAmount() <= 0) {
-            Locale locale = LocaleContextHolder.getLocale();
-            Language language = languageService.findByName(locale.getLanguage())
-                    .orElseThrow(() -> new RuntimeException("There is no such language"));
-            BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, language);
-            model.addAttribute("bookWithTranslate", bookWithTranslate);
-            model.addAttribute("order", orderDto);
-            model.addAttribute("amountError", true);
+            BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
+            model.addAttribute("bookWithTranslate", bookWithTranslate)
+                    .addAttribute("order", orderDto)
+                    .addAttribute("amountError", true);
             return "/user/reader/orderForm";
         }
         book.setAmount(book.getAmount() - 1);
         bookService.updateBook(book);
+
         User user = userService.findByLogin(userLogin).orElseThrow(() -> new RuntimeException("There is no such user"));
         Order order = new Order.Builder()
                 .user(user)

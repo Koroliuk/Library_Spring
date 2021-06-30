@@ -79,7 +79,7 @@ public class LibrarianController {
         User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("There is no such user"));
         int totalAmount = orderService.getAmountByUserAnd2OrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE);
         int amount = (totalAmount - 1) / amountOfBookOnPage + 1;
-        List<Order> orders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE,
+        List<Order> orders = orderService.findAllByUserAnd2OrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE,
                 page - 1, amountOfBookOnPage, currLanguage);
         model.addAttribute("orders", orders)
                 .addAttribute("amount", amount)

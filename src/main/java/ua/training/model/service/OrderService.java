@@ -30,8 +30,8 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public List<Order> findAllByUserIdAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2,
-                                                      int pageNo, int pageSize, Language language) {
+    public List<Order> findAllByUserAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2,
+                                                    int pageNo, int pageSize, Language language) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<Order> pagedResult = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user, orderStatus1, orderStatus2, paging);
         List<Order> orders = pagedResult.toList();
@@ -43,7 +43,7 @@ public class OrderService {
         return orders;
     }
 
-    public List<Order> getReadingHoleOrders(User user, OrderStatus orderStatus, int pageNo, int pageSize, Language language) {
+    public List<Order> findAllByUserAndOrderStatus(User user, OrderStatus orderStatus, int pageNo, int pageSize, Language language) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<Order> pagedResult = orderRepository.findAllByUserAndOrderStatus(user, orderStatus, paging);
         List<Order> orders = pagedResult.toList();

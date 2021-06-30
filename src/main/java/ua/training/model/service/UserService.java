@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ua.training.model.entity.User;
 import ua.training.model.entity.enums.Role;
@@ -66,5 +68,12 @@ public class UserService {
         AtomicInteger amount = new AtomicInteger();
         userRepository.findAllByRole(role).forEach((p) -> amount.getAndIncrement());
         return Integer.parseInt(amount.toString());
+    }
+
+    public User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = ((UserDetails) principal).getUsername();
+        return findByLogin(username)
+                .orElseThrow(() -> new RuntimeException("There is no such user"));
     }
 }
