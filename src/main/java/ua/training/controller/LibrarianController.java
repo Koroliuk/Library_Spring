@@ -86,6 +86,7 @@ public class LibrarianController {
         int amount = orderService.getAmountByUserAnd2OrOrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE);
         model.addAttribute("amount", (amount-1)/5+1);
         model.addAttribute("readerId", userId);
+        model.addAttribute("currPage", page);
         return "/user/librarian/readerBook";
     }
 }

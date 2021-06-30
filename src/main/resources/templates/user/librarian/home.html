@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Librarian cabinet</title>
