@@ -30,8 +30,8 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public List<Order> getApprovedAndOverdueOrdersByUserId(User user, OrderStatus orderStatus1, OrderStatus orderStatus2,
-                                                           int pageNo, int pageSize, Language language) {
+    public List<Order> findAllByUserIdAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2,
+                                                      int pageNo, int pageSize, Language language) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<Order> pagedResult = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user, orderStatus1, orderStatus2, paging);
         List<Order> orders = pagedResult.toList();
@@ -55,7 +55,7 @@ public class OrderService {
         return orders;
     }
 
-    public int getAmountByUserAnd2OrOrderStatus(User user, OrderStatus approved, OrderStatus overdue) {
+    public int getAmountByUserAnd2OrderStatus(User user, OrderStatus approved, OrderStatus overdue) {
         AtomicInteger amount = new AtomicInteger();
         orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user, approved, overdue).forEach((p) -> amount.getAndIncrement());
         return Integer.parseInt(amount.toString());
@@ -83,7 +83,7 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
-    public List<Order> getReceivedOrders(OrderStatus orderStatus, int pageNo, int pageSize, Language language) {
+    public List<Order> findAllByOrderStatus(OrderStatus orderStatus, int pageNo, int pageSize, Language language) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<Order> pagedResult = orderRepository.findAllByOrderStatus(orderStatus, paging);
         List<Order> orders = pagedResult.toList();

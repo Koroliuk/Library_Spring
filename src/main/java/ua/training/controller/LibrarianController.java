@@ -1,6 +1,5 @@
 package ua.training.controller;
 
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +15,6 @@ import ua.training.model.service.OrderService;
 import ua.training.model.service.UserService;
 
 import java.util.List;
-import java.util.Locale;
 
 @Controller
 @RequestMapping(value = "/librarian")
@@ -34,31 +32,31 @@ public class LibrarianController {
 
     @GetMapping(value = "/home")
     public String getLibrarianHomePage(@RequestParam int tab, @RequestParam int page, Model model) {
-        Locale locale = LocaleContextHolder.getLocale();
-        Language language = languageService.findByName(locale.getLanguage())
-                .orElseThrow(() -> new RuntimeException("There is no such language"));
-        int amount1 = orderService.getAmountByOrderStatus(OrderStatus.RECEIVED);
-        int amount2 = userService.getAmountByRole(Role.READER);
-        System.out.println(amount1);
-        System.out.println(amount2);
+        int amountOfOrdersOnPage = 5;
+        Language currLanguage = languageService.getCurrentLanguage();
+        int totalAmountOfOrders = orderService.getAmountByOrderStatus(OrderStatus.RECEIVED);
+        int totalAmountOfUsers = userService.getAmountByRole(Role.READER);
+        int amountOfOrders = (totalAmountOfOrders - 1) / amountOfOrdersOnPage + 1;
+        int amountOfUsers = (totalAmountOfUsers - 1) / amountOfOrdersOnPage + 1;
+        List<Order> receivedOrders;
+        List<User> users;
         if (tab == 1) {
-            List<Order> receivedOrders = orderService.getReceivedOrders(OrderStatus.RECEIVED, page-1, 5,
-                    language);
-            List<User> users = userService.findAllByRole(Role.READER, 0, 5);
-            model.addAttribute("orders", receivedOrders);
-            model.addAttribute("readers", users);
+            receivedOrders = orderService.findAllByOrderStatus(OrderStatus.RECEIVED, page - 1,
+                    amountOfOrdersOnPage, currLanguage);
+            users = userService.findAllByRole(Role.READER, 0, amountOfOrdersOnPage);
         } else if (tab == 2) {
-            List<Order> receivedOrders = orderService.getReceivedOrders(OrderStatus.RECEIVED, 0, 5,
-                    language);
-            List<User> users = userService.findAllByRole(Role.READER, page-1, 5);
-            model.addAttribute("orders", receivedOrders);
-            model.addAttribute("readers", users);
+            receivedOrders = orderService.findAllByOrderStatus(OrderStatus.RECEIVED, 0,
+                    amountOfOrdersOnPage, currLanguage);
+            users = userService.findAllByRole(Role.READER, page - 1, amountOfOrdersOnPage);
         } else {
             return "redirect:/error";
         }
-        model.addAttribute("tab", tab);
-        model.addAttribute("amount1", (amount1-1)/5+1);
-        model.addAttribute("amount2", (amount2-1)/5+1);
+        model.addAttribute("tab", tab)
+                .addAttribute("currPage", page)
+                .addAttribute("amountOfOrders", amountOfOrders)
+                .addAttribute("amountOfUsers", amountOfUsers)
+                .addAttribute("orders", receivedOrders)
+                .addAttribute("readers", users);
         return "/user/librarian/home";
     }
 
@@ -76,17 +74,17 @@ public class LibrarianController {
 
     @GetMapping(value = "/getReaderBooks")
     public String getUsersBook(@RequestParam long userId, @RequestParam int page, Model model) {
-        Locale locale = LocaleContextHolder.getLocale();
-        Language language = languageService.findByName(locale.getLanguage())
-                .orElseThrow(() -> new RuntimeException("There is no such language"));
+        int amountOfBookOnPage = 5;
+        Language currLanguage = languageService.getCurrentLanguage();
         User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("There is no such user"));
-        List<Order> orders = orderService.getApprovedAndOverdueOrdersByUserId(user, OrderStatus.APPROVED, OrderStatus.OVERDUE,
-                page-1, 5, language);
-        model.addAttribute("orders", orders);
-        int amount = orderService.getAmountByUserAnd2OrOrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE);
-        model.addAttribute("amount", (amount-1)/5+1);
-        model.addAttribute("readerId", userId);
-        model.addAttribute("currPage", page);
+        int totalAmount = orderService.getAmountByUserAnd2OrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE);
+        int amount = (totalAmount - 1) / amountOfBookOnPage + 1;
+        List<Order> orders = orderService.findAllByUserIdAnd2OrderStatus(user, OrderStatus.APPROVED, OrderStatus.OVERDUE,
+                page - 1, amountOfBookOnPage, currLanguage);
+        model.addAttribute("orders", orders)
+                .addAttribute("amount", amount)
+                .addAttribute("readerId", userId)
+                .addAttribute("currPage", page);
         return "/user/librarian/readerBook";
     }
 }

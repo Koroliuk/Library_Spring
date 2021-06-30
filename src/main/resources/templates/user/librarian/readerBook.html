@@ -60,13 +60,13 @@
             <table class="table table-responsive table-bordered table-hover">
                 <thead class="thead-light">
                 <tr>
-                    <th>Id</th>
-                    <th>User login</th>
-                    <th>Title</th>
-                    <th>Authors</th>
-                    <th>Edition</th>
-                    <th>Publication date</th>
-                    <th>Language</th>
+                    <th>№</th>
+                    <th th:text="#{table.userLogin}"></th>
+                    <th th:text="#{table.title}"></th>
+                    <th th:text="#{table.authors}"></th>
+                    <th th:text="#{table.editionName}"></th>
+                    <th th:text="#{table.dateOfPublication}"></th>
+                    <th th:text="#{table.language}"></th>
                 </tr>
                 </thead>
                 <tr th:each="order : ${orders}">
