@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -18,8 +19,7 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-<header class="d-flex align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom"
-        th:fragment="header">
+<header class="d-flex align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
     <span class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none h3"
           th:text="#{header.library.name}"></span>
     <div class="d-flex flex-row mr-3">

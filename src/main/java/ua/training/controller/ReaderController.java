@@ -85,6 +85,7 @@ public class ReaderController {
         model.addAttribute("amount2", (amount2 - 1) / 5 + 1);
         model.addAttribute("amount3", (amount3 - 1) / 5 + 1);
         model.addAttribute("tab", tab);
+        model.addAttribute("currPage", page);
         if (successOrder) {
             model.addAttribute("successOrder", true);
         } else {
@@ -135,6 +136,7 @@ public class ReaderController {
     @GetMapping(value = "/deleteOrder")
     public String deleteOrder(@RequestParam int orderId) {
         orderService.deleteById(orderId);
+        // TODO: make differentiation of the result by the input tab parameter
         return "redirect:/reader/home?tab=1&page=1";
     }
 }
