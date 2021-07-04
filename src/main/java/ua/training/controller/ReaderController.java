@@ -2,6 +2,8 @@ package ua.training.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import ua.training.model.dto.OrderDto;
 import ua.training.model.entity.*;
@@ -100,9 +102,22 @@ public class ReaderController {
     }
 
     @PostMapping(value = "/orderBook")
-    public String orderBook(@Valid @ModelAttribute("order") OrderDto orderDto, @RequestParam long bookId,
+    public String orderBook(@Valid @ModelAttribute("order") OrderDto orderDto, BindingResult bindingResult, @RequestParam long bookId,
                             @RequestParam String userLogin, Model model) {
         Language currLanguage = languageService.getCurrentLanguage();
+        if (bindingResult.hasErrors()) {
+            BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
+            model.addAttribute("bookWithTranslate", bookWithTranslate)
+                    .addAttribute("order", orderDto);
+            return "/user/reader/orderForm";
+        }
+        if (orderDto.getEndDate().isBefore(orderDto.getStartDate())) {
+            bindingResult.addError(new ObjectError("global", "Login already in use"));
+            BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
+            model.addAttribute("bookWithTranslate", bookWithTranslate)
+                    .addAttribute("order", orderDto);
+            return "/user/reader/orderForm";
+        }
         Book book = bookService.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
         if (book.getAmount() <= 0) {
             BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);

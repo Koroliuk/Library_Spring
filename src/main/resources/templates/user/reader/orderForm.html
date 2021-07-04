@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Order book page</title>
@@ -17,37 +18,74 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<header class="d-flex align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <span class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none h3"
+          th:text="#{header.library.name}"></span>
+    <div class="d-flex flex-row mr-3">
+        <div class="mr-2">
+            <select class="custom-select" onchange="location.href = this.options[this.selectedIndex].value">
+                <th:block
+                        th:if="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en'))}">
+                    <option th:value="${#httpServletRequest.requestURI}+'?id='+${bookWithTranslate.book.id}+'&lang=en'"
+                            selected
+                            th:text="#{header.language.english}"></option>
+                    <option th:value="${#httpServletRequest.requestURI}+'?id='+${bookWithTranslate.book.id}+'&lang=uk'"
+                            th:text="#{header.language.ukrainian}"></option>
+                </th:block>
+                <th:block
+                        th:if="${(#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('uk')) || #locale.language.equals('uk')}">
+                    <option th:value="${#httpServletRequest.requestURI}+'?id='+${bookWithTranslate.book.id}+'&lang=en'"
+                            th:text="#{header.language.english}"></option>
+                    <option th:value="${#httpServletRequest.requestURI}+'?id='+${bookWithTranslate.book.id}+'&lang=uk'"
+                            selected
+                            th:text="#{header.language.ukrainian}"></option>
+                </th:block>
+            </select>
+        </div>
+        <th:block sec:authorize="isAnonymous()">
+            <a class="btn btn-outline-dark mr-2" data-mdb-ripple-color="dark" href="/signup"
+               th:text="#{header.signup}"></a>
+            <a class="btn btn-dark" href="/login" th:text="#{header.login}"></a>
+        </th:block>
+        <th:block sec:authorize="isAuthenticated()">
+            <a class="btn btn-dark" href="/logout" th:text="#{header.logout}"></a>
+        </th:block>
+    </div>
+</header>
 <div class="container text-center">
-    <h3>Замовити книгу</h3>
+    <h3 th:text="#{reader.orderBookTitle}"></h3>
     <div class="row justify-content-center">
         <div class="col-auto">
             <table class="table table-responsive">
                 <tr>
                     <td class="text-left">
-                        <span th:text="'Заголовок:'+${bookWithTranslate.bookTranslate.title}"></span>
+                        <span th:text="#{table.title}+': '+${bookWithTranslate.bookTranslate.title}"></span>
                     </td>
                 </tr>
                 <tr>
-                    <td th:text="'Автори:'+${bookWithTranslate.bookTranslate.authorsString}" class="text-left"></td>
+                    <td th:text="#{table.authors}+': '+${bookWithTranslate.bookTranslate.authorsString}"
+                        class="text-left"></td>
                 </tr>
                 <tr>
                     <td class="text-left">
-                        <span th:text="'Короткий опис:\n'+${bookWithTranslate.bookTranslate.description}"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-left">
-                        <span th:text="'Мова:'+${bookWithTranslate.bookTranslate.languageOfBook}"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="text-left">
-                        <span th:text="'Видання:'+${bookWithTranslate.bookTranslate.editionName}"></span>
+                        <span th:text="#{table.description}+':'"></span>
+                        <br/>
+                        <span th:text="${bookWithTranslate.bookTranslate.description}"></span>
                     </td>
                 </tr>
                 <tr>
                     <td class="text-left">
-                        <span th:text="'Дата видання:'+${bookWithTranslate.book.publicationDate}"></span>
+                        <span th:text="#{table.language}+': '+${bookWithTranslate.bookTranslate.languageOfBook}"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-left">
+                        <span th:text="#{table.editionName}+': '+${bookWithTranslate.bookTranslate.editionName}"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-left">
+                        <span th:text="#{table.dateOfPublication}+': '+${bookWithTranslate.book.publicationDate}"></span>
                     </td>
                 </tr>
             </table>
@@ -57,41 +95,52 @@
           th:action="@{'/reader/orderBook?bookId='+${bookWithTranslate.book.getId()}+'&userLogin='+${#authentication.getName()}}">
         <div class="form-group">
             <div>
-                <label for="orderType">Тип замовлення:</label><br/>
-                <select class="custom-select-sm" style="width: 200px;" id="orderType" th:field="*{orderType}"
-                        onchange="chooseType()">
-                    <option value="subscription">Абонемент</option>
-                    <option value="readingHole">Читальний зал</option>
+                <label for="orderType" th:text="#{reader.orderBook.typeOfOrder}"></label>
+                <br/>
+                <select class="custom-select-sm" style="width: 200px;" id="orderType" th:field="*{orderType}">
+                    <option value="subscription" th:text="#{table.subscription}"></option>
+                    <option value="readingHole" th:text="#{tabs.readingHole}"></option>
                 </select>
             </div>
+            <br/>
             <div style="padding-left: 10px;">
-                <span th:if="${param.error}" class="text-danger" style="text-align: justify;">Перевірте правильність вибору дат</span>
-                <span th:if="${amountError == true}" class="text-info" style="text-align: justify;">Немає екземплярів спробуйте пізніше</span>
-                <br/>
-                <span class="text-danger" style="text-align: justify;" id="warning3" hidden>Дата початку має буте не пізніше дати кінця</span>
-                <span class="text-danger" style="text-align: justify;" id="warning1" hidden>Оберіть дату не раніше сьогодні</span>
-                <span class="text-danger" style="text-align: justify;" id="warning2" hidden>Оберіть дату не раніше сьогодні</span>
+                <span class="text-danger" th:if="${#fields.hasErrors('global')}"
+                      th:text="#{order.error.message.checkDates}"></span>
+                <span class="text-info" style="text-align: justify;" th:if="${amountError == true}"
+                      th:text="#{order.error.message.lackOfAmount}"></span>
+                <span class="text-danger" style="text-align: justify;" id="warning3" hidden
+                      th:text="#{order.validation.message3}"></span>
+                <span class="text-danger" style="text-align: justify;" id="warning1" hidden><br/><span
+                        th:text="#{order.validation.message2}"></span></span>
             </div>
             <div class="mb-2 mt-2">
-                <label>Start date: <input class="form-control" id="startDate" type="date" th:field="*{startDate}">
-<!--                    value="<%= LocalDate.now() %>-->
+                <label><span th:text="#{table.startDate}"></span>: <input class="form-control" id="startDate"
+                                                                          type="date" th:field="*{startDate}">
                 </label>
+                <br th:if="${#fields.hasErrors('startDate')}"/>
+                <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('startDate')}"
+                      th:errors="*{startDate}"></span>
             </div>
             <div class="mb-2 mt-2">
-                <label>End date: <input class="form-control" id="endDate" type="date" th:field="*{endDate}">
+                <label><span th:text="#{table.endDate}"></span>: <input class="form-control" id="endDate" type="date"
+                                                                        th:field="*{endDate}">
                 </label>
+                <br th:if="${#fields.hasErrors('endDate')}"/>
+                <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('endDate')}"
+                      th:errors="*{endDate}"></span>
             </div>
             <div>
-                <input class="btn btn-outline-info" type="submit" value="Замовити">
+                <input class="btn btn-outline-info" type="submit" th:value="#{reader.orderButtonTitle}">
             </div>
         </div>
     </form>
     <br/>
     <div style="padding-left: 200px;">
-        <a href="/search?page=1">To search</a>
+        <a href="/search?page=1" th:text="#{user.to.search}"></a>
         <br/>
-        <a href="/reader/home">To cabinet</a>
+        <a href="/reader/home" th:text="#{user.to.homeCabinet}"></a>
     </div>
 </div>
+<script type="text/javascript" th:src="@{/js/user/reader/orderBook.js}"></script>
 </body>
 </html>

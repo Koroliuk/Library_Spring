@@ -203,7 +203,7 @@
                             <a th:if="${order.getOrderStatus().name().equals('CANCELED')}" type="button"
                                class="btn btn-outline-warning"
                                th:href="@{'/reader/deleteOrder?orderId='+${order.id}}"
-                               th:text="#{reader.deleteMesage}"></a>
+                               th:text="#{reader.deleteMessage}"></a>
                         </td>
                     </tr>
                 </table>
@@ -217,5 +217,6 @@
         </div>
     </div>
 </div>
+<div th:replace="fragment/footer.html :: footer"></div>
 </body>
 </html>
