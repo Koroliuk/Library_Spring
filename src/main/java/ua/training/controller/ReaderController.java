@@ -2,6 +2,8 @@ package ua.training.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import ua.training.model.dto.OrderDto;
 import ua.training.model.entity.*;
@@ -100,9 +102,22 @@ public class ReaderController {
     }
 
     @PostMapping(value = "/orderBook")
-    public String orderBook(@Valid @ModelAttribute("order") OrderDto orderDto, @RequestParam long bookId,
+    public String orderBook(@Valid @ModelAttribute("order") OrderDto orderDto, BindingResult bindingResult, @RequestParam long bookId,
                             @RequestParam String userLogin, Model model) {
         Language currLanguage = languageService.getCurrentLanguage();
+        if (bindingResult.hasErrors()) {
+            BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
+            model.addAttribute("bookWithTranslate", bookWithTranslate)
+                    .addAttribute("order", orderDto);
+            return "/user/reader/orderForm";
+        }
+        if (orderDto.getEndDate().isBefore(orderDto.getStartDate())) {
+            bindingResult.addError(new ObjectError("global", "Date of start must be earlier than end date"));
+            BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
+            model.addAttribute("bookWithTranslate", bookWithTranslate)
+                    .addAttribute("order", orderDto);
+            return "/user/reader/orderForm";
+        }
         Book book = bookService.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
         if (book.getAmount() <= 0) {
             BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
@@ -127,9 +142,12 @@ public class ReaderController {
     }
 
     @GetMapping(value = "/deleteOrder")
-    public String deleteOrder(@RequestParam int orderId) {
+    public String deleteOrder(@RequestParam int orderId, @RequestParam int tab) {
         orderService.deleteById(orderId);
-        // TODO: make differentiation of the result by the input tab parameter
-        return "redirect:/reader/home?tab=1&page=1";
+        if (tab > 0 && tab <= 3) {
+            return "redirect:/reader/home?tab="+tab+"&page=1";
+        } else {
+            return "error/error";
+        }
     }
 }

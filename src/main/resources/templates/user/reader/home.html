@@ -111,11 +111,11 @@
                         <td>
                             <a th:if="${order.getOrderStatus().name().equals('APPROVED')}" type="button"
                                class="btn btn-outline-info"
-                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}}"
+                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}+'&tab=1'}"
                                th:text="#{reader.returnBook}"></a>
                             <a th:if="${order.getOrderStatus().name().equals('OVERDUE')}" type="button"
                                class="btn btn-outline-warning"
-                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}}"
+                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}+'&tab=1'}"
                                th:text="#{reader.payFine.begin}+' '+${order.getFine()}+' '+#{reader.payFine.end}"></a>
                         </td>
                     </tr>
@@ -156,7 +156,7 @@
                         <td th:text="${order.endDate}"></td>
                         <td>
                             <a type="button" class="btn btn-outline-warning"
-                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}}"
+                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}+'&tab=2'}"
                                th:text="#{reader.cancelOrder}"></a>
                         </td>
                     </tr>
@@ -198,12 +198,12 @@
                         <td>
                             <a th:if="${order.getOrderStatus().name().equals('RECEIVED')}" type="button"
                                class="btn btn-outline-info"
-                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}}"
+                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}+'&tab=3'}"
                                th:text="#{reader.cancelOrder}"></a>
                             <a th:if="${order.getOrderStatus().name().equals('CANCELED')}" type="button"
                                class="btn btn-outline-warning"
-                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}}"
-                               th:text="#{reader.deleteMesage}"></a>
+                               th:href="@{'/reader/deleteOrder?orderId='+${order.id}+'&tab=3'}"
+                               th:text="#{reader.deleteMessage}"></a>
                         </td>
                     </tr>
                 </table>
@@ -217,5 +217,6 @@
         </div>
     </div>
 </div>
+<div th:replace="fragment/footer.html :: footer"></div>
 </body>
 </html>

@@ -33,7 +33,7 @@
                            th:placeholder="#{placeholder.login}">
                     <span class="text-danger" style="text-align: justify;" id="loginMessage"></span>
                     <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('login')}"
-                          th:errors="*{login}" th:text="#{signup.error.message.validation.login}"></span>
+                          th:errors="*{login}"></span>
                 </label>
             </div>
             <div>
@@ -42,7 +42,7 @@
                            th:placeholder="#{placeholder.password}">
                     <span class="text-danger" style="text-align: justify;" id="passwordMessage"></span>
                     <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('password')}"
-                          th:errors="*{password}" th:text="#{signup.error.message.validation.password}"></span>
+                          th:errors="*{password}"></span>
                 </label>
             </div>
             <div>

@@ -11,14 +11,14 @@ import java.time.LocalDate;
 
 public class OrderDto {
 
-    @NotNull(message = "Start date date is required")
+    @NotNull(message = "{startDate.validation.required}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @FutureOrPresent(message = "Publication date must be future or present")
+    @FutureOrPresent(message = "{startDate.validation.message}")
     private LocalDate startDate;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "{endDate.validation.required}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @FutureOrPresent(message = "Publication date must be future or present")
+    @FutureOrPresent(message = "{endDate.validation.message}")
     private LocalDate endDate;
 
     @NotBlank
