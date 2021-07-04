@@ -145,7 +145,7 @@ public class ReaderController {
     public String deleteOrder(@RequestParam int orderId, @RequestParam int tab) {
         orderService.deleteById(orderId);
         if (tab > 0 && tab <= 3) {
-            return "redirect:/reader/home?tab="+tab+"&page=1";
+            return "redirect:/reader/home?tab=" + tab + "&page=1";
         } else {
             return "error/error";
         }
