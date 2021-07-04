@@ -12,6 +12,7 @@ import ua.training.model.repository.BookRepository;
 import ua.training.model.repository.BookTranslateRepository;
 import ua.training.model.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +23,11 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final BookTranslateRepository bookTranslateRepository;
-    private final UserRepository userRepository;
 
     @Autowired
-    public BookService(BookRepository bookRepository, BookTranslateRepository bookTranslateRepository, UserRepository userRepository) {
+    public BookService(BookRepository bookRepository, BookTranslateRepository bookTranslateRepository) {
         this.bookRepository = bookRepository;
         this.bookTranslateRepository = bookTranslateRepository;
-        this.userRepository = userRepository;
     }
 
     public void addBook(Book book) {
@@ -41,6 +40,10 @@ public class BookService {
         List<Book> books = pagedResult.toList();
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
         for (Book book : books) {
+            if (language.getName().equals("en")) {
+                BigDecimal priceUAN = book.getPrice();
+                book.setPrice(priceUAN.divide(new BigDecimal(30), 2));
+            }
             BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(book, language).orElseThrow(() -> new RuntimeException("There is no such translate"));
             BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
             bookWithTranslateList.add(bookWithTranslate);

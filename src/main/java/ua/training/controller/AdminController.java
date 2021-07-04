@@ -1,7 +1,6 @@
 package ua.training.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +23,6 @@ import ua.training.model.service.UserService;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Controller
 @RequestMapping(value = "/admin")
@@ -49,25 +47,23 @@ public class AdminController {
     @GetMapping(value = "/home")
     public String getAdminHomePage(Model model, @RequestParam int tab, @RequestParam int page) {
         int amountUsersOnPage = 5;
-        int amountOfUserPages = (userService.getAmountOfUsers() - 1) / amountUsersOnPage + 1;
         int amountBooksOnPage = 4;
+        int amountOfUserPages = (userService.getAmountOfUsers() - 1) / amountUsersOnPage + 1;
         int amountOfBookPages = (bookService.getAmountOfBooks() - 1) / amountBooksOnPage + 1;
-        model.addAttribute("tab", tab);
-        model.addAttribute("amountOfUserPages", amountOfUserPages);
-        model.addAttribute("amountOfBookPages", amountOfBookPages);
-        Locale locale = LocaleContextHolder.getLocale();
-        Language language = languageService.findByName(locale.getLanguage())
-                .orElseThrow(() -> new RuntimeException("There is no such language"));
+        Language language = languageService.getCurrentLanguage();
         if (tab == 1) {
-            model.addAttribute("users", userService.findPaginated(page - 1, amountUsersOnPage));
-            model.addAttribute("books", bookService.findPaginatedAndLocated(0, amountBooksOnPage, language));
+            model.addAttribute("users", userService.findPaginated(page - 1, amountUsersOnPage))
+                    .addAttribute("books", bookService.findPaginatedAndLocated(0, amountBooksOnPage, language));
         } else if (tab == 2) {
-            model.addAttribute("books", bookService.findPaginatedAndLocated(page - 1, amountBooksOnPage,
-                    language));
-            model.addAttribute("users", userService.findPaginated(0, amountUsersOnPage));
+            model.addAttribute("books", bookService.findPaginatedAndLocated(page - 1, amountBooksOnPage, language))
+                    .addAttribute("users", userService.findPaginated(0, amountUsersOnPage));
         } else {
             return "redirect:/error";
         }
+        model.addAttribute("tab", tab)
+                .addAttribute("currPage", page)
+                .addAttribute("amountOfUserPages", amountOfUserPages)
+                .addAttribute("amountOfBookPages", amountOfBookPages);
         return "/user/admin/home";
     }
 
@@ -163,9 +159,9 @@ public class AdminController {
 
     @PostMapping(value = "/editBook")
     public String editBook(@RequestParam long id, @Valid @ModelAttribute("book") BookDto bookDto,
-                          @Valid @ModelAttribute("list") BookTranslateContainerDto containerDto,
-                          BindingResult bindingResult,
-                          Model model) {
+                           @Valid @ModelAttribute("list") BookTranslateContainerDto containerDto,
+                           BindingResult bindingResult,
+                           Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("id", id);
             model.addAttribute("action", "add");
@@ -243,7 +239,11 @@ public class AdminController {
     }
 
     @PostMapping(value = "addLibrarian")
-    public String addLibrarian(@Valid @ModelAttribute("user") UserDto userDto, Model model) {
+    public String addLibrarian(@Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("user", userDto);
+            return "/user/admin/librarianForm";
+        }
         User user = new User.Builder()
                 .login(userDto.getLogin())
                 .password(passwordEncoder.encode(userDto.getPassword()))
@@ -265,7 +265,7 @@ public class AdminController {
         bookTranslateDto.setDescription(bookTranslate.getDescription());
         bookTranslateDto.setBookLanguage(bookTranslate.getLanguageOfBook());
         bookTranslateDto.setEdition(bookTranslate.getEditionName());
-        return  bookTranslateDto;
+        return bookTranslateDto;
     }
 
     private BookDto getDtoFromBook(Book book) {

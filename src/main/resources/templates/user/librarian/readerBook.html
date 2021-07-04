@@ -43,14 +43,9 @@
                 </th:block>
             </select>
         </div>
-        <th:block sec:authorize="isAnonymous()">
-            <a class="btn btn-outline-dark mr-2" data-mdb-ripple-color="dark" href="/signup"
-               th:text="#{header.signup}"></a>
-            <a class="btn btn-dark" href="/login" th:text="#{header.login}"></a>
-        </th:block>
-        <th:block sec:authorize="isAuthenticated()">
+        <div>
             <a class="btn btn-dark" href="/logout" th:text="#{header.logout}"></a>
-        </th:block>
+        </div>
     </div>
 </header>
 <div class="container text-center">
