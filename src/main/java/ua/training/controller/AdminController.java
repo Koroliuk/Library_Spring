@@ -20,9 +20,10 @@ import ua.training.model.service.BookTranslateService;
 import ua.training.model.service.LanguageService;
 import ua.training.model.service.UserService;
 
-import javax.validation.Valid;
+import javax.validation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping(value = "/admin")
@@ -69,13 +70,13 @@ public class AdminController {
 
     @GetMapping(value = "/addBook")
     public String getAddBookPage(Model model, @RequestParam(required = false) boolean successCreation) {
-        model.addAttribute("action", "add");
-        model.addAttribute("book", new BookDto());
         List<BookTranslateDto> bookTranslateDtoList = new ArrayList<>();
         bookTranslateDtoList.add(new BookTranslateDto());
         bookTranslateDtoList.add(new BookTranslateDto());
         BookTranslateContainerDto containerDto = new BookTranslateContainerDto(bookTranslateDtoList);
-        model.addAttribute("container", containerDto);
+        model.addAttribute("action", "add")
+                .addAttribute("book", new BookDto())
+                .addAttribute("container", containerDto);
         if (successCreation) {
             model.addAttribute("successCreation", true);
         } else {
@@ -85,21 +86,20 @@ public class AdminController {
     }
 
     @PostMapping(value = "/addBook")
-    public String addBook(@Valid @ModelAttribute("book") BookDto bookDto,
-                          @Valid @ModelAttribute("list") BookTranslateContainerDto containerDto,
-                          BindingResult bindingResult,
+    public String addBook(@Valid @ModelAttribute("book") BookDto bookDto, BindingResult bindingResult,
+                          @ModelAttribute("list") BookTranslateContainerDto containerDto,
                           Model model) {
-        if (bindingResult.hasErrors()) {
-//            model.addAttribute("id", null);
-            model.addAttribute("action", "add");
-            model.addAttribute("book", bookDto);
-            model.addAttribute("container", containerDto);
+        if (bindingResult.hasErrors() || !validateBookWithTranslateContainer(containerDto)) {
+            model.addAttribute("validationError", true)
+                    .addAttribute("action", "add")
+                    .addAttribute("book", bookDto)
+                    .addAttribute("container", containerDto);
             return "/user/admin/bookForm";
         }
         BookTranslateDto bookTranslateDtoUa = containerDto.getDtoList().get(0);
         BookTranslateDto bookTranslateDtoEn = containerDto.getDtoList().get(1);
-        Language uk = languageService.findByName("uk").orElseThrow(() -> new RuntimeException("kjh"));
-        Language en = languageService.findByName("en").orElseThrow(() -> new RuntimeException("kjh"));
+        Language uk = languageService.findByName("uk").orElseThrow(() -> new RuntimeException("There is no such language"));
+        Language en = languageService.findByName("en").orElseThrow(() -> new RuntimeException("There is no such language"));
         Book book = getBookFromDto(bookDto);
         BookTranslate bookTranslateUa = getBookTranslateFromDto(bookTranslateDtoUa, uk, book);
         BookTranslate bookTranslateEn = getBookTranslateFromDto(bookTranslateDtoEn, en, book);
@@ -109,11 +109,10 @@ public class AdminController {
         String authorsStringEn = bookTranslateEn.getAuthorsString();
         if (bookTranslateService.findByTitleAndAuthorsString(titleUa, authorsStringUa).size() > 0
                 || bookTranslateService.findByTitleAndAuthorsString(titleEn, authorsStringEn).size() > 0) {
-//            model.addAttribute("id", null);
-            model.addAttribute("action", "add");
-            model.addAttribute("book", bookDto);
-            model.addAttribute("container", containerDto);
-            model.addAttribute("actionError", true);
+            model.addAttribute("action", "add")
+                    .addAttribute("book", bookDto)
+                    .addAttribute("container", containerDto)
+                    .addAttribute("actionError", true);
             return "/user/admin/bookForm";
         }
         bookService.addBook(book);
@@ -131,7 +130,7 @@ public class AdminController {
     @GetMapping(value = "/editBook")
     public String getEditPage(@RequestParam long id, @RequestParam(required = false) boolean successEditing,
                               Model model) {
-        Book book = bookService.findById(id).orElseThrow(() -> new RuntimeException("There is no boo with such id"));
+        Book book = bookService.findById(id).orElseThrow(() -> new RuntimeException("There is no book with such id"));
         Language uk = languageService.findByName("uk")
                 .orElseThrow(() -> new RuntimeException("There is no such language at database"));
         Language en = languageService.findByName("en")
@@ -140,15 +139,15 @@ public class AdminController {
                 .orElseThrow(() -> new RuntimeException("There is no such translate"));
         BookTranslate bookTranslateEn = bookTranslateService.findByBookAndLanguage(book, en)
                 .orElseThrow(() -> new RuntimeException("There is no such translate"));
-        model.addAttribute("id", id);
-        model.addAttribute("action", "edit");
         BookDto bookDto = getDtoFromBook(book);
-        model.addAttribute("book", bookDto);
         List<BookTranslateDto> bookTranslateDtoList = new ArrayList<>();
         bookTranslateDtoList.add(getDtoFromBookTranslate(bookTranslateUa));
         bookTranslateDtoList.add(getDtoFromBookTranslate(bookTranslateEn));
         BookTranslateContainerDto containerDto = new BookTranslateContainerDto(bookTranslateDtoList);
-        model.addAttribute("container", containerDto);
+        model.addAttribute("action", "edit")
+                .addAttribute("id", id)
+                .addAttribute("book", bookDto)
+                .addAttribute("container", containerDto);
         if (successEditing) {
             model.addAttribute("successEditing", true);
         } else {
@@ -158,15 +157,14 @@ public class AdminController {
     }
 
     @PostMapping(value = "/editBook")
-    public String editBook(@RequestParam long id, @Valid @ModelAttribute("book") BookDto bookDto,
+    public String editBook(@RequestParam long id, @Valid @ModelAttribute("book") BookDto bookDto, BindingResult bindingResult,
                            @Valid @ModelAttribute("list") BookTranslateContainerDto containerDto,
-                           BindingResult bindingResult,
                            Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("id", id);
-            model.addAttribute("action", "add");
-            model.addAttribute("book", bookDto);
-            model.addAttribute("container", containerDto);
+            model.addAttribute("id", id)
+                    .addAttribute("action", "add")
+                    .addAttribute("book", bookDto)
+                    .addAttribute("container", containerDto);
             return "/user/admin/bookForm";
         }
         BookTranslateDto bookTranslateDtoUa = containerDto.getDtoList().get(0);
@@ -182,13 +180,13 @@ public class AdminController {
         String titleEn = bookTranslateEn.getTitle();
         String authorsStringUa = bookTranslateUa.getAuthorsString();
         String authorsStringEn = bookTranslateEn.getAuthorsString();
-        if (bookTranslateService.findByTitleAndAuthorsString(titleUa, authorsStringUa).size() > 0
-                || bookTranslateService.findByTitleAndAuthorsString(titleEn, authorsStringEn).size() > 0) {
-            model.addAttribute("id", id);
-            model.addAttribute("action", "add");
-            model.addAttribute("book", bookDto);
-            model.addAttribute("container", containerDto);
-            model.addAttribute("actionError", true);
+        if (bookTranslateService.findByTitleAndAuthorsString(titleUa, authorsStringUa).size() > 1
+                || bookTranslateService.findByTitleAndAuthorsString(titleEn, authorsStringEn).size() > 1) {
+            model.addAttribute("id", id)
+                    .addAttribute("action", "add")
+                    .addAttribute("book", bookDto)
+                    .addAttribute("container", containerDto)
+                    .addAttribute("actionError", true);
             return "/user/admin/bookForm";
         }
         Book oldBook = bookService.findById(id).orElseThrow(() -> new RuntimeException("There is no such book"));
@@ -202,7 +200,7 @@ public class AdminController {
         bookTranslateEn.setId(oldEn.getId());
         bookTranslateService.updateBookTranslate(bookTranslateUa);
         bookTranslateService.updateBookTranslate(bookTranslateEn);
-        return "redirect:/admin/editBook?successEditing=true";
+        return "redirect:/admin/editBook?id=" + id + "&successEditing=true";
     }
 
     @GetMapping(value = "/blockUser")
@@ -290,5 +288,17 @@ public class AdminController {
                 .price(bookDto.getPrice())
                 .amount(bookDto.getAmount())
                 .build();
+    }
+
+    private boolean validateBookWithTranslateContainer(BookTranslateContainerDto containerDto) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        for (BookTranslateDto bookTranslateDto : containerDto.getDtoList()) {
+            Set<ConstraintViolation<BookTranslateDto>> violations1 = validator.validate(bookTranslateDto);
+            if (!violations1.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
