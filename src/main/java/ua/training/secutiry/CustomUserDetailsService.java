@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import ua.training.model.entity.User;
 import ua.training.model.service.UserService;
 
-import java.util.ArrayList;
-
 @Service("userDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
 
