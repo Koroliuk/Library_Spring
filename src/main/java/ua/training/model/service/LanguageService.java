@@ -25,14 +25,14 @@ public class LanguageService {
         return languageRepository.findByName(name);
     }
 
-//    @PostConstruct
-//    private void initLanguages() {
-//        Language uk = new Language("uk");
-//        languageRepository.save(uk);
-//
-//        Language en = new Language("en");
-//        languageRepository.save(en);
-//    }
+    @PostConstruct
+    private void initLanguages() {
+        Language uk = new Language("uk");
+        languageRepository.save(uk);
+
+        Language en = new Language("en");
+        languageRepository.save(en);
+    }
 
     public Language getCurrentLanguage() {
         Locale locale = LocaleContextHolder.getLocale();
