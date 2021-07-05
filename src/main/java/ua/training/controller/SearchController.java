@@ -22,25 +22,26 @@ public class SearchController {
                                 @RequestParam(required = false) String sortBy,
                                 @RequestParam(required = false) String sortType) {
         Language language = languageService.getCurrentLanguage();
-        int amountBooksOnPage = 4;
-        int amountOfBookPages;
         if (sortBy == null || sortBy.trim().equals("")) {
             sortBy = "id";
         }
         if (sortType == null || sortType.trim().equals("")) {
             sortType = "asc";
         }
+        int amountBooksOnPage = 4;
+        int amountOfBookPages;
         if (keyWords == null || keyWords.trim().equals("")) {
             amountOfBookPages = (bookService.getAmountOfBooks() - 1) / amountBooksOnPage + 1;
-            model.addAttribute("amountOfBookPages", amountOfBookPages);
-            model.addAttribute("books", bookService.findPaginatedAndLocatedWithSortByAndSortType(page - 1, amountBooksOnPage, language, sortBy, sortType));
-            model.addAttribute("keyWords", "");
+            model.addAttribute("amountOfBookPages", amountOfBookPages)
+                    .addAttribute("keyWords", keyWords)
+                    .addAttribute("books", bookService.findPaginatedAndLocatedWithSortByAndSortType(page - 1,
+                            amountBooksOnPage, language, sortBy, sortType));
         } else {
             amountOfBookPages = (bookService.getAmountOfBooksByKeyWords(keyWords, language) - 1) / amountBooksOnPage + 1;
-            model.addAttribute("amountOfBookPages", amountOfBookPages);
-            model.addAttribute("books", bookService.findPaginatedAndLocatedByKeyWords(keyWords, language,
+            model.addAttribute("amountOfBookPages", amountOfBookPages)
+                    .addAttribute("keyWords", keyWords)
+                    .addAttribute("books", bookService.findPaginatedAndLocatedByKeyWords(keyWords, language,
                     page - 1, amountBooksOnPage, sortBy, sortType));
-            model.addAttribute("keyWords", keyWords);
         }
         if (sortBy.trim().equals("")) {
             model.addAttribute("sortBy", "");

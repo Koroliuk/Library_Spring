@@ -13,8 +13,8 @@ import ua.training.model.entity.enums.Role;
 import ua.training.model.repository.UserRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class UserService {
@@ -30,6 +30,14 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void update(User user) {
+        userRepository.save(user);
+    }
+
+    public Optional<User> findById(long id) {
+        return userRepository.findById(id);
+    }
+
     public Optional<User> findByLogin(String login) {
         return userRepository.findByLogin(login);
     }
@@ -40,40 +48,38 @@ public class UserService {
         return pagedResult.toList();
     }
 
-    public int getAmountOfUsers() {
-        AtomicInteger amount = new AtomicInteger();
-        userRepository.findAll().forEach((p) -> amount.getAndIncrement());
-        return Integer.parseInt(amount.toString());
-    }
-
-    public Optional<User> findById(long id) {
-        return userRepository.findById(id);
-    }
-
-    public void update(User user) {
-        userRepository.save(user);
-    }
-
-    public void deleteById(long id) {
-        userRepository.deleteById(id);
-    }
-
     public List<User> findAllByRole(Role role, int pageNo, int pageSize) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
         Page<User> pagedResult = userRepository.findAllByRole(role, paging);
         return pagedResult.toList();
     }
 
+    public void deleteById(long id) {
+        userRepository.deleteById(id);
+    }
+
+    public int getAmountOfUsers() {
+        Iterable<User> users = userRepository.findAll();
+        int result = 0;
+        for (User ignored : users) {
+            result++;
+        }
+        return result;
+    }
+
     public int getAmountByRole(Role role) {
-        AtomicInteger amount = new AtomicInteger();
-        userRepository.findAllByRole(role).forEach((p) -> amount.getAndIncrement());
-        return Integer.parseInt(amount.toString());
+        Iterable<User> users = userRepository.findAllByRole(role);
+        int result = 0;
+        for (User ignored : users) {
+            result++;
+        }
+        return result;
     }
 
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();
         return findByLogin(username)
-                .orElseThrow(() -> new RuntimeException("There is no such user"));
+                .orElseThrow(() -> new NoSuchElementException("There is no such user"));
     }
 }

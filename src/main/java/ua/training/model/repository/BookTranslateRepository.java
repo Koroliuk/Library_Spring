@@ -39,4 +39,9 @@ public interface BookTranslateRepository extends CrudRepository<BookTranslate, L
             "authors_string LIKE '%' || ?1 || '%') ORDER BY (SELECT publication_date FROM book " +
             "WHERE book.id = book_translate.book_id)", nativeQuery = true)
     Page<BookTranslate> findAllByKeyWordAndLanguageOrderByDate(String keyWord, long languageId, Pageable pageable);
+
+    @Query(value = "SELECT * from book_translate WHERE language_id = ?2 AND (title LIKE '%' || ?1 || '%' OR " +
+            "authors_string LIKE '%' || ?1 || '%') ORDER BY (SELECT publication_date FROM book " +
+            "WHERE book.id = book_translate.book_id) DESC ", nativeQuery = true)
+    Page<BookTranslate> findAllByKeyWordAndLanguageOrderByDateDesc(String keyWords, long languageId, Pageable pageable);
 }

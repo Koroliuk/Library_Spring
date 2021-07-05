@@ -8,6 +8,7 @@ import ua.training.model.repository.LanguageRepository;
 
 import javax.annotation.PostConstruct;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -24,13 +25,6 @@ public class LanguageService {
         return languageRepository.findByName(name);
     }
 
-    public Language getCurrentLanguage() {
-        Locale locale = LocaleContextHolder.getLocale();
-        return findByName(locale.getLanguage())
-                .orElseThrow(() -> new RuntimeException("There is no such language"));
-    }
-
-//    public Locale
 //    @PostConstruct
 //    private void initLanguages() {
 //        Language uk = new Language("uk");
@@ -39,4 +33,10 @@ public class LanguageService {
 //        Language en = new Language("en");
 //        languageRepository.save(en);
 //    }
+
+    public Language getCurrentLanguage() {
+        Locale locale = LocaleContextHolder.getLocale();
+        return findByName(locale.getLanguage())
+                .orElseThrow(() -> new NoSuchElementException("There is no such language"));
+    }
 }

@@ -109,7 +109,7 @@
     <div th:if="${amountOfBookPages > 1}" class="btn-group" role="group" aria-label="Basic example">
         <th:block th:each="page : ${#numbers.sequence(1, amountOfBookPages)}">
             <a class="btn btn-primary btn-rounded" th:text="${page}"
-               th:href="@{'/search?page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}}"></a>
+               th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}}"></a>
         </th:block>
     </div>
 </div>
