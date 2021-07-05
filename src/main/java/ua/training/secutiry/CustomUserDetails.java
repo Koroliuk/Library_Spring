@@ -3,8 +3,8 @@ package ua.training.secutiry;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import ua.training.model.entity.User;
-import ua.training.model.entity.enums.Role;
+import ua.training.model.User;
+import ua.training.model.enums.Role;
 
 import java.util.Collection;
 import java.util.Collections;

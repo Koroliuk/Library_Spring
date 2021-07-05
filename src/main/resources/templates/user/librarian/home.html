@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Librarian cabinet</title>
@@ -17,31 +18,60 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<header class="d-flex align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <span class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none h3"
+          th:text="#{header.library.name}"></span>
+    <div class="d-flex flex-row mr-3">
+        <div class="mr-2">
+            <select class="custom-select" onchange="location.href = this.options[this.selectedIndex].value">
+                <th:block
+                        th:if="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en'))}">
+                    <option th:value="${#httpServletRequest.requestURI}+'?tab='+${tab}+'&page='+${currPage}+'&lang=en'"
+                            selected
+                            th:text="#{header.language.english}"></option>
+                    <option th:value="${#httpServletRequest.requestURI}+'?tab='+${tab}+'&page='+${currPage}+'&lang=uk'"
+                            th:text="#{header.language.ukrainian}"></option>
+                </th:block>
+                <th:block
+                        th:if="${(#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('uk')) || #locale.language.equals('uk')}">
+                    <option th:value="${#httpServletRequest.requestURI}+'?tab='+${tab}+'&page='+${currPage}+'&lang=en'"
+                            th:text="#{header.language.english}"></option>
+                    <option th:value="${#httpServletRequest.requestURI}+'?tab='+${tab}+'&page='+${currPage}+'&lang=uk'"
+                            selected
+                            th:text="#{header.language.ukrainian}"></option>
+                </th:block>
+            </select>
+        </div>
+        <div>
+            <a class="btn btn-dark" href="/logout" th:text="#{header.logout}"></a>
+        </div>
+    </div>
+</header>
 <nav class="nav nav-tabs nav-justified">
     <th:block th:if="${tab == 1}">
-        <a class="nav-item nav-link active" data-toggle="tab" href="#orders">Замовлення</a>
-        <a class="nav-item nav-link" data-toggle="tab" href="#subscriptions">Абонементи користувачів</a>
+        <a class="nav-item nav-link active" data-toggle="tab" href="#orders" th:text="#{tabs.orders}"></a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#subscriptions" th:text="#{tabs.subscriptions}"></a>
     </th:block>
     <th:block th:if="${tab == 2}">
-        <a class="nav-item nav-link" data-toggle="tab" href="#orders">Замовлення</a>
-        <a class="nav-item nav-link active" data-toggle="tab" href="#subscriptions">Абонементи користувачів</a>
+        <a class="nav-item nav-link" data-toggle="tab" href="#orders" th:text="#{tabs.orders}"></a>
+        <a class="nav-item nav-link active" data-toggle="tab" href="#subscriptions" th:text="#{tabs.subscriptions}"></a>
     </th:block>
 </nav>
 <br/>
 <div class="tab-content text-center">
-    <h3 th:text="'Кабінет бібліотекаря: '+${#authentication.getName()}"></h3>
+    <h3 th:text="#{librarian.title}+' '+${#authentication.getName()}"></h3>
     <div class="tab-pane fade text-center" th:classappend="${tab == 1 ? 'show active' : ''}" id="orders">
         <div class="row justify-content-center">
-            <div th:if="${orders != null && orders.size() > 0}" class="col-auto">
-                <h5 class="mb-2 mt-2">Перелік замовлень</h5>
+            <div class="col-auto" th:if="${orders != null && orders.size() > 0}">
+                <h5 class="mb-2 mt-2" th:text="#{librarian.orders}"></h5>
                 <table class="table table-responsive table-bordered table-hover">
                     <thead class="thead-light">
                     <tr>
                         <th>№</th>
-                        <th>User login</th>
-                        <th>Title</th>
-                        <th>Authors</th>
-                        <th>Action</th>
+                        <th th:text="#{table.userLogin}"></th>
+                        <th th:text="#{table.title}"></th>
+                        <th th:text="#{table.authors}"></th>
+                        <th th:text="#{table.action}"></th>
                     </tr>
                     </thead>
                     <tr th:each="order : ${orders}">
@@ -50,13 +80,15 @@
                         <td th:text="${order.bookTranslate.title}"></td>
                         <td th:text="${order.bookTranslate.authorsString}"></td>
                         <td>
-                            <a class="btn btn-outline-info" th:href="@{'/librarian/approveOrder?id='+${order.id}}">Видати</a>
-                            <a class="btn btn-outline-danger" th:href="@{'/librarian/cancelOrder?id='+${order.id}}">Скасувати</a>
+                            <a class="btn btn-outline-info" th:href="@{'/librarian/approveOrder?id='+${order.id}}"
+                               th:text="#{librarian.delete}"></a>
+                            <a class="btn btn-outline-danger" th:href="@{'/librarian/cancelOrder?id='+${order.id}}"
+                               th:text="#{librarian.cancel}"></a>
                         </td>
                     </tr>
                 </table>
-                <div th:if="${amount1 > 1}" class="btn-group" role="group" aria-label="Basic example">
-                    <th:block th:each="page : ${#numbers.sequence(1, amount1)}">
+                <div class="btn-group" role="group" aria-label="Basic example" th:if="${amountOfOrders > 1}">
+                    <th:block th:each="page : ${#numbers.sequence(1, amountOfOrders)}">
                         <a class="btn btn-primary btn-rounded" th:text="${page}"
                            th:href="@{'/librarian/home?tab=1&page='+${page}}"></a>
                     </th:block>
@@ -66,26 +98,27 @@
     </div>
     <div class="tab-pane fade text-center" th:classappend="${tab == 2 ? 'show active' : ''}" id="subscriptions">
         <div class="row justify-content-center">
-            <div th:if="${readers != null && readers.size() > 0}" class="col-auto">
-                <h5>Абонементи читачів</h5>
+            <div class="col-auto" th:if="${readers != null && readers.size() > 0}">
+                <h5 th:text="#{librarian.usersSubscriptions}"></h5>
                 <table class="table table-responsive table-bordered table-hover">
                     <thead class="thead-light">
                     <tr>
                         <th>№</th>
-                        <th>Login</th>
-                        <th>Абонемент</th>
+                        <th th:text="#{table.login}"></th>
+                        <th th:text="#{table.subscription}"></th>
                     </tr>
                     </thead>
                     <tr th:each="reader : ${readers}">
                         <td th:text="${reader.id}"></td>
                         <td th:text="${reader.login}"></td>
                         <td>
-                            <a th:href="@{'/librarian/getReaderBooks?userId='+${reader.id}+'&page=1'}">Переглянути абонемент</a>
+                            <a th:href="@{'/librarian/getReaderBooks?userId='+${reader.id}+'&page=1'}"
+                               th:text="#{librarian.checkSubscription}"></a>
                         </td>
                     </tr>
                 </table>
-                <div th:if="${amount2 > 1}" class="btn-group" role="group" aria-label="Basic example">
-                    <th:block th:each="page : ${#numbers.sequence(1, amount2)}">
+                <div th:if="${amountOfUsers > 1}" class="btn-group" role="group" aria-label="Basic example">
+                    <th:block th:each="page : ${#numbers.sequence(1, amountOfUsers)}">
                         <a class="btn btn-primary btn-rounded" th:text="${page}"
                            th:href="@{'/librarian/home?tab=2&page='+${page}}"></a>
                     </th:block>
@@ -94,6 +127,6 @@
         </div>
     </div>
 </div>
+<div th:replace="fragment/footer.html :: footer"></div>
 </body>
-<!--<script type="text/javascript" src="/librarian/js/home.js"></script>-->
 </html>

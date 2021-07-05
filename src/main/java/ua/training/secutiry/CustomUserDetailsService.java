@@ -5,10 +5,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import ua.training.model.entity.User;
-import ua.training.model.service.UserService;
-
-import java.util.ArrayList;
+import ua.training.model.User;
+import ua.training.service.UserService;
 
 @Service("userDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {

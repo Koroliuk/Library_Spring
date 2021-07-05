@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Search Page</title>
@@ -17,39 +19,72 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<header class="d-flex align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <span class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none h3"
+          th:text="#{header.library.name}"></span>
+    <div class="d-flex flex-row mr-3">
+        <div class="mr-2">
+            <select class="custom-select" onchange="location.href = this.options[this.selectedIndex].value">
+                <th:block
+                        th:if="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en'))}">
+                    <option th:value="${#httpServletRequest.requestURI}+'?keyWords='+${keyWords}+'&page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}+'&lang=en'"
+                            selected
+                            th:text="#{header.language.english}"></option>
+                    <option th:value="${#httpServletRequest.requestURI}+'?keyWords='+${keyWords}+'&page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}+'&lang=uk'"
+                            th:text="#{header.language.ukrainian}"></option>
+                </th:block>
+                <th:block
+                        th:if="${(#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('uk')) || #locale.language.equals('uk')}">
+                    <option th:value="${#httpServletRequest.requestURI}+'?keyWords='+${keyWords}+'&page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}+'&lang=en'"
+                            th:text="#{header.language.english}"></option>
+                    <option th:value="${#httpServletRequest.requestURI}+'?keyWords='+${keyWords}+'&page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}+'&lang=uk'"
+                            selected
+                            th:text="#{header.language.ukrainian}"></option>
+                </th:block>
+            </select>
+        </div>
+        <div>
+            <a class="btn btn-dark" href="/logout" th:text="#{header.logout}"></a>
+        </div>
+    </div>
+</header>
 <div class="container text-center">
     <div class="row justify-content-center">
         <div>
             <form method="post" action="/search?page=1">
                 <label>
-                    <input class="form-control me-2 mr-2" type="text" name="keyWords" placeholder="Пошук">
+                    <input class="form-control me-2 mr-2" type="text" name="keyWords" th:placeholder="#{index.search}">
                 </label>
-                <input class="btn btn-outline-success p-1" type="submit" value="Знайти">
+                <input class="btn btn-outline-success p-1" type="submit" th:value="#{index.find}">
             </form>
         </div>
         <div th:if="${books != null || books.size() > 0}" class="col-auto">
             <table class="table table-responsive table-bordered table-hover">
                 <thead class="thead-light">
                 <tr>
-                    <th>Title</th>
-                    <th>Authors</th>
-                    <th>Language</th>
-                    <th>Edition</th>
-                    <th>Date of publish</th>
-                    <th>Description</th>
-                    <th>Action</th>
+                    <th th:text="#{table.title}"></th>
+                    <th th:text="#{table.authors}"></th>
+                    <th th:text="#{table.language}"></th>
+                    <th th:text="#{table.editionName}"></th>
+                    <th th:text="#{table.dateOfPublication}"></th>
+                    <th th:text="#{table.description}"></th>
+                    <th th:text="#{table.action}"></th>
                 </tr>
                 </thead>
                 <div class="mr-3 mt-2 mb-2">
-                    <span>Сортувати за: </span>
+                    <span th:text="#{search.sortBy}+': '"></span>
                     <a type="button" class="btn btn-outline-primary btn-sm"
-                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=title&sortType='+${(sortBy.equals('title') && sortType.equals('asc')) ? 'dec' : 'asc'}}">назвою</a>
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=title&sortType='+${(sortBy.equals('title') && sortType.equals('asc')) ? 'dec' : 'asc'}}"
+                       th:text="#{search.sortByTitle}"></a>
                     <a type="button" class="btn btn-outline-primary btn-sm"
-                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=authors&sortType='+${(sortBy.equals('authors') && sortType.equals('asc')) ? 'dec' : 'asc'}}">автором</a>
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=authorsString&sortType='+${(sortBy.equals('authorsString') && sortType.equals('asc')) ? 'dec' : 'asc'}}"
+                       th:text="#{search.sortByAuthors}"></a>
                     <a type="button" class="btn btn-outline-primary btn-sm"
-                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=edition&sortType='+${(sortBy.equals('edition') && sortType.equals('asc')) ? 'dec' : 'asc'}}">виданням</a>
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=editionName&sortType='+${(sortBy.equals('editionName') && sortType.equals('asc')) ? 'dec' : 'asc'}}"
+                       th:text="#{search.sortByEdition}"></a>
                     <a type="button" class="btn btn-outline-primary btn-sm"
-                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=date&sortType='+${(sortBy.equals('date') && sortType.equals('asc')) ? 'dec' : 'asc'}}">датою</a>
+                       th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy=publicationDate&sortType='+${(sortBy.equals('publicationDate') && sortType.equals('asc')) ? 'dec' : 'asc'}}"
+                       th:text="#{search.sortByDate}"></a>
                 </div>
                 <tr th:each="bookWithTranslate : ${books}">
                     <td th:text="${bookWithTranslate.bookTranslate.title}"></td>
@@ -60,22 +95,24 @@
                     <td th:text="${bookWithTranslate.bookTranslate.description}"></td>
                     <td class="justify-content-sm-between" style="width: 200px;">
                         <a sec:authorize="isAuthenticated()" type="button" class="btn btn-outline-info"
-                           th:href="@{'/reader/orderBook?id='+${bookWithTranslate.book.id}}">Order</a>
+                           th:href="@{'/reader/orderBook?id='+${bookWithTranslate.book.id}}"
+                           th:text="#{reader.orderButtonTitle}"></a>
                         <span sec:authorize="isAnonymous()">-</span>
                     </td>
                 </tr>
             </table>
         </div>
         <div th:if="${books == null || books.size() <= 0}" class="col-auto">
-            <span>Пусто</span>
+            <span th:text="#{emptyTitle}"></span>
         </div>
     </div>
     <div th:if="${amountOfBookPages > 1}" class="btn-group" role="group" aria-label="Basic example">
         <th:block th:each="page : ${#numbers.sequence(1, amountOfBookPages)}">
             <a class="btn btn-primary btn-rounded" th:text="${page}"
-               th:href="@{'/search?page='+${page}}"></a>
+               th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}}"></a>
         </th:block>
     </div>
 </div>
+<div th:replace="fragment/footer.html :: footer"></div>
 </body>
 </html>

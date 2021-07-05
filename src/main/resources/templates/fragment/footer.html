@@ -3,7 +3,7 @@
       th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Main Page</title>
+    <title>Registration Page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -18,19 +18,23 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-<div th:replace="fragment/header.html :: header"></div>
-<div class="container text-center align-items-center justify-content-center" style="margin-top: 10%;">
-    <h1 class="col-md-12" th:text="#{index.welcome}"></h1>
-    <a class="lead" href="/search?page=1&keyWords=" th:text="#{index.start.search}"></a>
-    <div class="justify-content-sm-between">
-        <form method="post" action="/search?page=1">
-            <label>
-                <input class="form-control me-2 mr-2" type="text" name="keyWords" th:placeholder="#{index.search}">
-            </label>
-            <input class="btn btn-outline-success p-1" type="submit" th:value="#{index.find}">
-        </form>
+<footer class="navbar fixed-bottom d-flex flex-row justify-content-sm-between align-items-center bg-light text-lg-start p-3" th:fragment="footer">
+    <div>
+        <p>
+            <span th:text="#{footer.licence}"></span>
+            <a href="https://github.com/Koroliuk/Library_Spring/blob/main/LICENSE">GNU GPLv3 License</a>.
+            <br>
+            <a href="https://github.com/Koroliuk/Library_Spring"><span th:text="#{footer.project.github}"></span></a>
+            <br/>
+            <span>@2021</span>
+        </p>
     </div>
-</div>
+    <div>
+        <p>
+            <span th:text="#{footer.questions}"></span>
+            <a href="https://github.com/Koroliuk/Library_Spring/issues/new">GitHub</a>.
+        </p>
+    </div>
+</footer>
 </body>
-<div th:replace="fragment/footer.html :: footer"></div>
 </html>

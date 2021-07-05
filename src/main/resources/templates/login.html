@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Login Page</title>
@@ -17,36 +18,43 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<div th:replace="fragment/header.html :: header"></div>
 <div class="container text-center" style="margin-top: 10%;">
-    <h3>Login</h3>
+    <h3 th:text="#{login.title}"></h3>
     <form id="loginForm" method="post" th:action="@{/login}">
-        <span th:if="${param.error}" class="text-danger">Invalid login or password</span>
+        <span class="text-danger" th:if="${param.error}" th:text="#{login.error.message}"></span>
         <div>
             <label for="login">
                 <span class="text-danger" style="text-align: justify;" id="validationErrorMessage"></span>
-                <input class="form-control" type="text" id="login" name="login" placeholder="Login">
+                <input class="form-control" type="text" id="login" name="login" th:placeholder="#{placeholder.login}">
             </label>
         </div>
         <div>
             <label for="password" style="width: 230px;">
                 <input class="form-control" type="password" id="password" name="password"
-                       placeholder="Password">
+                       th:placeholder="#{placeholder.password}">
             </label>
         </div>
         <div>
-            <input type="submit" class="btn btn-outline-info" value="Do it">
+            <input type="submit" class="btn btn-outline-info" th:value="#{login.action}">
         </div>
     </form>
-    <div style="padding-left: 160px;">
-        <a href="/signup">Sign Up</a>
+    <br/>
+    <div style="padding-left: 140px;">
+        <a href="/signup" th:text="#{login.to.signup}"></a>
     </div>
     <div style="padding-left: 140px;">
-        <a href="/">To home</a>
+        <a href="/" th:text="#{signup.to.home}"></a>
     </div>
 </div>
 </body>
-<script type="text/javascript">
-    const validationErrorString = '<fmt:message key="login.login.password.validation.message"/>';
+<div th:replace="fragment/footer.html :: footer"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    const validationErrorString = /*[[#{login.error.message}]]*/ '';
+
+    /*]]>*/
 </script>
 <script type="text/javascript" th:src="@{/js/login.js}"></script>
 </html>

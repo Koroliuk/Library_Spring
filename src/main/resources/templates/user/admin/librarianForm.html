@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Registration page for librarian</title>
@@ -17,35 +18,53 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<div th:replace="fragment/header.html :: header"></div>
 <div class="container text-center" style="margin-top: 10%;">
-    <h3>Створення бібліотекаря</h3>
-    <form id="form" method="post" th:action="@{/admin/addLibrarian}">
+    <h3 th:text="#{admin.createLibrarianTitle}"></h3>
+    <form id="form" method="post" th:action="@{/admin/addLibrarian}" th:object="${user}">
         <div class="form-group">
-            <span th:if="${param.error}" class="text-danger">Перевірте введені дані</span>
-            <span th:if="${createError == true}" class="text-danger">Даний логін вже викорстовується</span>
-            <span th:if="${successCreation == true}" class="text-success">Створення пройшло успішно</span>
+            <span th:if="${param.error}" class="text-danger" th:text="#{admin.createAdmin.param.error}"></span>
+            <span th:if="${createError == true}" class="text-danger" th:text="#{signup.error.message.login}"></span>
+            <span th:if="${successCreation == true}" class="text-success"
+                  th:text="#{admin.createLibrarian.success}"></span>
             <div>
                 <label style="width: 230px;">
-                    <input class="form-control" type="text" id="login" th:field="${user.login}"
-                           placeholder="Login">
+                    <input class="form-control" type="text" id="login" th:field="*{login}"
+                           th:placeholder="#{placeholder.login}">
                     <span class="text-danger" style="text-align: justify;" id="loginMessage"></span>
+                    <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('login')}"
+                          th:errors="*{login}"></span>
                 </label>
             </div>
             <div>
                 <label style="width: 230px;">
                     <input class="form-control" type="password" id="password" th:field="${user.password}"
-                           placeholder="Password">
+                           th:placeholder="#{placeholder.password}">
                     <span class="text-danger" style="text-align: justify;" id="passwordMessage"></span>
+                    <span class="text-danger" style="text-align: justify;" th:if="${#fields.hasErrors('password')}"
+                          th:errors="*{password}"></span>
                 </label>
             </div>
             <div>
-                <input type="submit" class="btn btn-outline-info" value="Do it">
+                <input type="submit" class="btn btn-outline-info" th:value="#{admin.createLibrarianButton}">
             </div>
         </div>
     </form>
     <div>
-        <a style="padding-left: 130px;" href="/admin/home?tab=1&page=1">To home</a>
+        <a style="padding-left: 130px;" href="/admin/home?tab=1&page=1" th:text="#{user.to.homeCabinet}"></a>
     </div>
 </div>
+<div th:replace="fragment/footer.html :: footer"></div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    const loginValidateMessage1 = /*[[#{login.validation.message1}]]*/ '';
+    const loginValidateMessage2 = /*[[#{login.validation.message2}]]*/ '';
+    const passwordValidateMessage1 = /*[[#{password.validation.message1}]]*/ '';
+    const passwordValidateMessage2 = /*[[#{password.validation.message2}]]*/ '';
+
+    /*]]>*/
+</script>
+<script type="text/javascript" th:src="@{/js/signup.js}"></script>
 </body>
 </html>

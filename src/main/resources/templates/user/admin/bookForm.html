@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${(#locale.language == null && #httpServletRequest.getParameter('lang') == null) || (#locale.language != null && #locale.language.equals('en')) || (#httpServletRequest.getParameter('lang') != null && #httpServletRequest.getParameter('lang').equals('en')) ? 'en' : 'uk'}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Add book page</title>
@@ -17,23 +18,28 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+<div th:replace="fragment/header.html :: header"></div>
 <div class="container text-center">
-    <h3 th:if="${action == 'add'}">Додати книгу</h3>
-    <h3 th:if="${action == 'edit'}">Редагувати книгу</h3>
+    <h3 th:if="${action == 'add'}" th:text="#{admin.bookForm.titleAdd}"></h3>
+    <h3 th:if="${action == 'edit'}" th:text="#{admin.bookForm.titleEdit}"></h3>
     <form id="form" method="post" th:action="@{'/admin/'+${action}+'Book'+${id != null ? '?id='+id : ''}}">
         <div class="form-group">
-            <span th:if="${param.error}" class="text-danger">Перевірте правильність введених даних</span>
-            <span th:if="${actionError == true}" class="text-danger">"Така книга вже існує"</span>
-            <span th:if="${successCreation == true && action == 'add'}" class="text-success">Книгу успішно додано</span>
-            <span th:if="${successEditing == true && action == 'edit'}" class="text-success">Книгу успішно оновлено</span>
-            <br/>
+            <span th:if="${validationError == true}" class="text-danger" th:text="#{admin.bookForm.errorMessage}"></span>
+            <span th:if="${actionError == true}" class="text-danger" th:text=" #{admin.bookForm.existError}"></span>
+            <span th:if="${successCreation == true && action == 'add'}" class="text-success"
+                  th:text="#{admin.bookFrom.successAdition}"></span>
+            <span th:if="${successEditing == true && action == 'edit'}" class="text-success"
+                  th:text="#{admin.bookForm.successEdition}"></span>
+            <span class="text-danger" id="totalMessage" th:text="#{bookForm.total.message}" hidden></span>
             <div>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="titleUa" th:field="${container.dtoList[0].title}" placeholder="Заголовок"
+                    <input class="form-control" type="text" id="titleUa" th:field="${container.dtoList[0].title}"
+                           placeholder="Заголовок"
                            th:value="${container.dtoList[0].title != null ? container.dtoList[0].title : ''}">
                 </label>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="titleEn" th:field="${container.dtoList[1].title}" placeholder="Title"
+                    <input class="form-control" type="text" id="titleEn" th:field="${container.dtoList[1].title}"
+                           placeholder="Title"
                            th:value="${container.dtoList[1].title != null ? container.dtoList[1].title : ''}">
                 </label>
                 <br/>
@@ -41,11 +47,13 @@
             </div>
             <div>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="authorsUa" th:field="${container.dtoList[0].authorsString}" placeholder="Автори"
+                    <input class="form-control" type="text" id="authorsUa"
+                           th:field="${container.dtoList[0].authorsString}" placeholder="Автори"
                            th:value="${container.dtoList[0].authorsString != null ? container.dtoList[0].authorsString : ''}">
                 </label>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="authorsEn" th:field="${container.dtoList[1].authorsString}" placeholder="Authors"
+                    <input class="form-control" type="text" id="authorsEn"
+                           th:field="${container.dtoList[1].authorsString}" placeholder="Authors"
                            th:value="${container.dtoList[1].authorsString != null ? container.dtoList[1].authorsString : ''}">
                 </label>
                 <br/>
@@ -53,23 +61,29 @@
             </div>
             <div>
                 <label style="width: 75%;">
-                    <textarea class="form-control" id="descriptionUa" th:field="${container.dtoList[0].description}" placeholder="Опис"
-                              wrap="soft" th:text="${container.dtoList[0].description != null ? container.dtoList[0].description : ''}"></textarea>
+                    <textarea class="form-control" id="descriptionUa" th:field="${container.dtoList[0].description}"
+                              placeholder="Опис"
+                              wrap="soft"
+                              th:text="${container.dtoList[0].description != null ? container.dtoList[0].description : ''}"></textarea>
                 </label>
                 <label style="width: 75%;">
-                    <textarea class="form-control" id="descriptionEn" th:field="${container.dtoList[1].description}" placeholder="Description"
-                              wrap="soft" th:text="${container.dtoList[1].description != null ? container.dtoList[1].description : ''}"></textarea>
+                    <textarea class="form-control" id="descriptionEn" th:field="${container.dtoList[1].description}"
+                              placeholder="Description"
+                              wrap="soft"
+                              th:text="${container.dtoList[1].description != null ? container.dtoList[1].description : ''}"></textarea>
                 </label>
                 <br/>
                 <span class="text-danger" id="descriptionMessage"></span>
             </div>
             <div>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="bookLanguageUa" th:field="${container.dtoList[0].bookLanguage}" placeholder="Мова"
+                    <input class="form-control" type="text" id="bookLanguageUa"
+                           th:field="${container.dtoList[0].bookLanguage}" placeholder="Мова"
                            th:value="${container.dtoList[0].bookLanguage != null ? container.dtoList[0].bookLanguage : ''}">
                 </label>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="bookLanguageEn" th:field="${container.dtoList[1].bookLanguage}" placeholder="Language"
+                    <input class="form-control" type="text" id="bookLanguageEn"
+                           th:field="${container.dtoList[1].bookLanguage}" placeholder="Language"
                            th:value="${container.dtoList[1].bookLanguage != null ? container.dtoList[1].bookLanguage : ''}">
                 </label>
                 <br/>
@@ -77,22 +91,24 @@
             </div>
             <div>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="editionUa" th:field="${container.dtoList[0].edition}" placeholder="Видання"
+                    <input class="form-control" type="text" id="editionUa" th:field="${container.dtoList[0].edition}"
+                           placeholder="Видання"
                            th:value="${container.dtoList[0].edition != null ? container.dtoList[0].edition : ''}">
                 </label>
                 <label style="width: 37%;">
-                    <input class="form-control" type="text" id="editionEn" th:field="${container.dtoList[1].edition}" placeholder="Edition"
+                    <input class="form-control" type="text" id="editionEn" th:field="${container.dtoList[1].edition}"
+                           placeholder="Edition"
                            th:value="${container.dtoList[1].edition != null ? container.dtoList[1].edition : ''}">
                 </label>
                 <br/>
                 <span class="text-danger" id="editionMessage"></span>
             </div>
             <div>
-                <span class="text-dark h5">Дата видання:</span>
+                <span class="text-dark h5" th:text="#{table.dateOfPublication}+':'"></span>
                 <br/>
                 <label style="width: 75%;">
                     <input class="form-control" type="date" id="publicationDate" th:field="${book.publicationDate}"
-                           placeholder="Date of publication"
+                           th:placeholder="#{placeholder.dateOfPublication}"
                            th:value="${book.publicationDate != null ? book.publicationDate : ''}">
                 </label>
                 <br/>
@@ -100,33 +116,50 @@
             </div>
             <div>
                 <label style="width: 28%;">
-                    <input class="form-control" type="text" id="price" th:field="${book.price}" placeholder="Price"
+                    <input class="form-control" type="text" id="price" th:field="${book.price}"
+                           th:placeholder="#{placeholder.price}"
                            th:value="${book.price != null ? book.price : ''}">
                 </label>
                 <label for="currency">
-                    <select style="width: 75px;" class="custom-select-sm" id="currency" name="currency"
-                            onchange="chooseType()">
+                    <select style="width: 75px;" class="custom-select-sm" id="currency" name="currency">
                         <option value="uan">UAN</option>
                         <option value="usd">USD</option>
                     </select>
                 </label>
                 <label style="width: 35%;">
-                    <input class="form-control" type="text" id="amount" th:field="${book.amount}" placeholder="Amount"
+                    <input class="form-control" type="text" id="amount" th:field="${book.amount}"
+                           th:placeholder="#{placeholder.amount}"
                            th:value="${book.amount != null ? book.amount : ''}">
                 </label>
-                <span class="text-danger" id="countMessage"></span>
+                <br/>
                 <span class="text-danger" id="priceMessage"></span>
                 <br/>
+                <span class="text-danger" id="amountMessage"></span>
             </div>
         </div>
         <div>
-            <input type="submit" class="btn btn-outline-info" value="Зберегти">
+            <input type="submit" class="btn btn-outline-info" th:value="#{admin.bookForm.button}">
         </div>
     </form>
     <div>
-        <a style="padding-left: 400px;" href="/admin/home?tab=2&page=1">To home</a>
+        <a style="padding-left: 400px;" href="/admin/home?tab=2&page=1" th:text="#{user.to.homeCabinet}"></a>
     </div>
 </div>
 </body>
-<!--<script type="text/javascript" th:src="@{user/admin/js/bookForm.js}"></script>-->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    const titleValidationMessage1 = /*[[#{title.validation.message1}]]*/ '';
+    const titleValidationMessage2 = /*[[#{title.validation.message2}]]*/ '';
+    const authorsValidatorMessage = /*[[#{authors.validation.message}]]*/ '';
+    const descriptionValidationMessage = /*[[#{description.validation.message}]]*/ '';
+    const bookLanguageValidationMessage = /*[[#{language.validation.message}]]*/ '';
+    const editionValidationMessage = /*[[#{edition.validation.message}]]*/ '';
+    const publicationDateValidationMessage = /*[[#{publicationDate.validation.message}]]*/ '';
+    const priceValidationMessage = /*[[#{price.validation.message}]]*/ '';
+    const countValidationMessage = /*[[#{amount.validation.message}]]*/ '';
+
+    /*]]>*/
+</script>
+<script type="text/javascript" th:src="@{/js/user/admin/bookForm.js}"></script>
 </html>
