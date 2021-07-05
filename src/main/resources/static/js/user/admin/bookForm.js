@@ -4,32 +4,22 @@ Date.prototype.withoutTime = function () {
     return date;
 }
 
-const titleValidationMessage1 = 'Заголовок має містити хоча б 2 та не більше 50 символів';
-const titleValidationMessage2 = 'Заголовок не може містити хоча б один непробільний символ';
-const authorsValidatorMessage = 'Імена авторів мають розділятись комою';
-const descriptionValidationMessage = 'Опис може містити до 1000 символів';
-const bookLanguageValidationMessage = 'Поле може мітити до 30 символів';
-const editionValidationMessage = 'Назва видання має мати не більше 30 символів';
-const publicationDateValidationMessage = 'Дата видання має бути не пізніше сьогодні';
-const priceValidationMessage = 'Ціна має бути числом, яке більше нуля';
-const countValidationMessage = 'Кількість екземплярів має бути цілим числом, яке більше нуля';
-
 const form = document.getElementById('form');
 const titleUa = document.getElementById('titleUa');
 const authorsUa = document.getElementById('authorsUa');
 const descriptionUa = document.getElementById("descriptionUa");
 const bookLanguageUa = document.getElementById("bookLanguageUa");
 const editionUa = document.getElementById('editionUa');
-const publicationDateUa = document.getElementById('publicationDateUa');
 const titleEn = document.getElementById('titleEn');
 const authorsEn = document.getElementById('authorsEn');
 const descriptionEn = document.getElementById("descriptionEn");
 const bookLanguageEn = document.getElementById("bookLanguageEn");
 const editionEn = document.getElementById('editionEn');
-const publicationDateEn = document.getElementById('publicationDateEn');
+const publicationDate = document.getElementById('publicationDate');
 const price = document.getElementById('price');
-const count = document.getElementById('count');
+const amount = document.getElementById('amount');
 
+const totalMessage = document.getElementById('totalMessage');
 const titleMessage = document.getElementById('titleMessage');
 const authorsMessage = document.getElementById('authorsMessage');
 const descriptionMessage = document.getElementById('descriptionMessage');
@@ -37,23 +27,25 @@ const bookLanguageMessage = document.getElementById('bookLanguageMessage');
 const editionMessage = document.getElementById('editionMessage');
 const publicationDateMessage = document.getElementById('publicationDateMessage');
 const priceMessage = document.getElementById('priceMessage');
-const countMessage = document.getElementById('countMessage');
+const amountMessage = document.getElementById('amountMessage');
 
-const titleRegExp = /^[\S][\S ]{1,49}$/;
-const authorsRegExp = /^(?<!,)(([A-zА-яЄєЇїІі]\.(?!\.)){0,2}([A-zА-яЄєЇїІі]{1,20}))((?<!,),([A-zА-яЄєЇїІі]\.(?!\.)){0,2}([A-zА-яЄєЇїІі]{1,20}))*((?<=,),([A-zА-яЄєЇїІі]\.(?!\.)){0,2}([A-z]{1,20})(?!,))?$/;
-const descriptionRegExp = /^.{0,1000}$/;
+const titleRegExp = /^[\S][\S ]{1,100}$/;
+const authorsRegExp = /^.{2,200}$/;
+const descriptionRegExp = /^.{2,1000}$/;
 const bookLanguageRegExp = /^[A-zА-яЄєЇїІі]{1,30}$/;
-const editionRegExp = /^.{1,30}$/;
-const priceRegExp = /^[0-9]+\.?[0-9]+$/;
+const editionRegExp = /^.{2,50}$/;
+const priceRegExp = /^[0-9]*\.?[0-9]+$/;
 const countRegExp = /^[0-9]+$/;
 
-function titleListener(title) {
-    const titleTest = titleRegExp.test(title.value);
-    if (titleTest) {
+function titlesListener(title1, title2) {
+    const titleTest1 = titleRegExp.test(title1.value);
+    const titleTest2 = titleRegExp.test(title2.value);
+    if (titleTest1 && titleTest2) {
         titleMessage.innerText = "";
     } else {
-        const titleStrip = title.value.trim();
-        if (titleStrip === '') {
+        const titleStrip1 = title1.value.trim();
+        const titleStrip2 = title2.value.trim();
+        if (titleStrip1 === '' || titleStrip2 === '') {
             titleMessage.innerText = titleValidationMessage2;
         } else {
             titleMessage.innerText = titleValidationMessage1;
@@ -61,43 +53,58 @@ function titleListener(title) {
     }
 }
 
-function authorsListener(authors) {
-    const authorsTest = authorsRegExp.test(authors.value);
-    if (authorsTest) {
+function authorsListener(authors1, authors2) {
+    const authorsTest1 = authorsRegExp.test(authors1.value);
+    const authorsTest2 = authorsRegExp.test(authors2.value);
+    if (authorsTest1 && authorsTest2) {
         authorsMessage.innerText = "";
     } else {
         authorsMessage.innerText = authorsValidatorMessage;
     }
 }
 
-function descriptionListener(description) {
-    const descriptionTest = descriptionRegExp.test(description.value);
-    if (descriptionTest) {
+function descriptionsListener(description1, description2) {
+    const descriptionTest1 = descriptionRegExp.test(description1.value);
+    const descriptionTest2 = descriptionRegExp.test(description2.value);
+    if (descriptionTest1 && descriptionTest2) {
         descriptionMessage.innerText = "";
     } else {
         descriptionMessage.innerText = descriptionValidationMessage;
     }
 }
 
-function bookLanguageListener(bookLanguage) {
-    const languageTest = bookLanguageRegExp.test(bookLanguage.value);
-    if (languageTest) {
+function bookLanguagesListener(bookLanguage1, bookLanguage2) {
+    const languageTest1 = bookLanguageRegExp.test(bookLanguage1.value);
+    const languageTest2 = bookLanguageRegExp.test(bookLanguage2.value);
+    if (languageTest1 && languageTest2) {
         bookLanguageMessage.innerText = "";
     } else {
         bookLanguageMessage.innerText = bookLanguageValidationMessage;
     }
 }
 
-function editionListener(edition) {
-    const editionTest = editionRegExp.test(edition.value);
-    if (editionTest) {
+function editionsListener(edition1, edition2) {
+    const editionTest1 = editionRegExp.test(edition1.value);
+    const editionTest2 = editionRegExp.test(edition2.value);
+    if (editionTest1 && editionTest2) {
         editionMessage.innerText = "";
     } else {
         editionMessage.innerText = editionValidationMessage;
     }
 }
 
-function publicationDateListener(publicationDate) {
+titleUa.addEventListener("input", () => titlesListener(titleUa, titleEn));
+titleEn.addEventListener("input", () => titlesListener(titleUa, titleEn));
+authorsUa.addEventListener("input", () => authorsListener(authorsUa, authorsEn));
+authorsEn.addEventListener("input", () => authorsListener(authorsUa, authorsEn));
+descriptionUa.addEventListener('input', () => descriptionsListener(descriptionUa, descriptionEn));
+descriptionEn.addEventListener('input', () => descriptionsListener(descriptionUa, descriptionEn));
+bookLanguageUa.addEventListener('input', () => bookLanguagesListener(bookLanguageUa, bookLanguageEn));
+bookLanguageEn.addEventListener('input', () => bookLanguagesListener(bookLanguageUa, bookLanguageEn));
+editionUa.addEventListener('input', () => editionsListener(editionUa, editionEn));
+editionEn.addEventListener('input', () => editionsListener(editionUa, editionEn));
+
+publicationDate.addEventListener('input', () => {
     const now = new Date().withoutTime();
     const date = new Date(publicationDate.value).withoutTime();
     const dateTest = date > now;
@@ -106,20 +113,7 @@ function publicationDateListener(publicationDate) {
     } else {
         publicationDateMessage.innerText = "";
     }
-}
-
-titleUa.addEventListener("input", () => titleListener(titleUa));
-titleEn.addEventListener("input", () => titleListener(titleEn));
-authorsUa.addEventListener("input", () => authorsListener(authorsUa));
-authorsEn.addEventListener("input", () => authorsListener(authorsEn));
-descriptionUa.addEventListener('input', () => descriptionListener(descriptionUa));
-descriptionEn.addEventListener('input', () => descriptionListener(descriptionEn));
-bookLanguageUa.addEventListener('input', () => bookLanguageListener(bookLanguageUa));
-bookLanguageEn.addEventListener('input', () => bookLanguageListener(bookLanguageEn));
-editionUa.addEventListener('input', () => editionListener(editionUa));
-editionEn.addEventListener('input', () => editionListener(editionEn));
-publicationDateUa.addEventListener('input', () => publicationDateListener(publicationDateUa));
-publicationDateEn.addEventListener('input', () => publicationDateListener(publicationDateEn));
+});
 
 price.addEventListener('input', () => {
     const priceTest = priceRegExp.test(price.value);
@@ -134,16 +128,16 @@ price.addEventListener('input', () => {
     }
 });
 
-count.addEventListener('input', () => {
-    const countTest = countRegExp.test(count.value);
+amount.addEventListener('input', () => {
+    const countTest = countRegExp.test(amount.value);
     if (countTest) {
-        if (count.value > 0) {
-            countMessage.innerText = "";
+        if (amount.value > 0) {
+            amountMessage.innerText = "";
         } else {
-            countMessage.innerText = countValidationMessage;
+            amountMessage.innerText = countValidationMessage;
         }
     } else {
-        countMessage.innerText = countValidationMessage;
+        amountMessage.innerText = countValidationMessage;
     }
 });
 
@@ -154,15 +148,17 @@ form.addEventListener("submit", (event) => {
     const languageTest = bookLanguageRegExp.test(bookLanguageUa.value);
     const editionTest = editionRegExp.test(editionUa.value);
     const now = new Date().withoutTime();
-    const date = new Date(publicationDateUa.value).withoutTime();
+    const date = new Date(publicationDate.value).withoutTime();
     const dateTest = date > now;
     const priceTest = priceRegExp.test(price.value);
-    const countTest = countRegExp.test(count.value);
+    const countTest = countRegExp.test(amount.value);
 
     if (!titleTest || !authorsTest || !descriptionTest || !languageTest
         || !editionTest || dateTest || !priceTest || !countTest) {
         event.preventDefault();
+        totalMessage.hidden = false;
         return false;
     }
+    totalMessage.hidden = true;
     return true;
 });
