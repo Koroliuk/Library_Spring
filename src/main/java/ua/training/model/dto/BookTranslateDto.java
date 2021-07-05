@@ -6,23 +6,23 @@ import javax.validation.constraints.Size;
 public class BookTranslateDto {
 
     @NotBlank(message = "{title.validation.required}")
-    @Size(min=2, max = 100, message = "{title.validation.message1}")
+    @Size(min = 2, max = 100, message = "{title.validation.message1}")
     private String title;
 
     @NotBlank(message = "{authors.validation.required}")
-    @Size(min=2, max = 200, message = "{authors.validation.message1}")
+    @Size(min = 2, max = 200, message = "{authors.validation.message1}")
     private String authorsString;
 
     @NotBlank(message = "{description.validation.required}")
-    @Size(min=2, max = 1000, message = "{description.validation.message1}")
+    @Size(min = 2, max = 1000, message = "{description.validation.message1}")
     private String description;
 
     @NotBlank(message = "{language.validation.required}")
-    @Size(min=2, max = 30, message = "{language.validation.message1}")
+    @Size(min = 2, max = 30, message = "{language.validation.message1}")
     private String bookLanguage;
 
     @NotBlank(message = "{edition.validation.required}")
-    @Size(min=2, max = 50, message = "{edition.validation.message1}")
+    @Size(min = 2, max = 50, message = "{edition.validation.message1}")
     private String edition;
 
     public String getTitle() {

@@ -21,7 +21,8 @@ public class BookDto {
     @PositiveOrZero(message = "{amount.validation.message1}")
     private Integer amount;
 
-    public BookDto() {}
+    public BookDto() {
+    }
 
     public BookDto(LocalDate publicationDate, BigDecimal price, Integer amount) {
         this.publicationDate = publicationDate;

@@ -51,4 +51,20 @@ public class OrderDto {
     public void setOrderType(String orderType) {
         this.orderType = orderType;
     }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public BookWithTranslate getBookWithTranslate() {
+        return bookWithTranslate;
+    }
+
+    public void setBookWithTranslate(BookWithTranslate bookWithTranslate) {
+        this.bookWithTranslate = bookWithTranslate;
+    }
 }
