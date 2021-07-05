@@ -2,9 +2,9 @@ package ua.training.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ua.training.model.entity.Language;
-import ua.training.model.service.BookService;
-import ua.training.model.service.LanguageService;
+import ua.training.model.Language;
+import ua.training.service.BookService;
+import ua.training.service.LanguageService;
 
 @Controller
 public class SearchController {
