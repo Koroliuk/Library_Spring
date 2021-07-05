@@ -1,16 +1,12 @@
 package ua.training.model.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.training.model.entity.*;
 import ua.training.model.repository.BookRepository;
 import ua.training.model.repository.BookTranslateRepository;
-import ua.training.model.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -52,25 +48,31 @@ public class BookService {
     }
 
     public List<BookWithTranslate> findPaginatedAndLocatedWithSortByAndSortType(int pageNo, int pageSize, Language language, String sortBy, String sortType) {
-        if (sortBy == null || sortBy.trim().equals("")) {
-            sortBy = "id";
-        }
-        if (sortType == null || sortType.trim().equals("")) {
-            sortType = "asc";
-        }
+        System.out.println(sortBy + " " + sortType);
         Pageable paging;
         if (sortType.trim().equals("dec")) {
             paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
         } else {
             paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         }
-        Page<Book> pagedResult = bookRepository.findAll(paging);
-        List<Book> books = pagedResult.toList();
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
-        for (Book book : books) {
-            BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(book, language).orElseThrow(() -> new RuntimeException("There is no such translate"));
-            BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
-            bookWithTranslateList.add(bookWithTranslate);
+        if (sortBy.equals("title") || sortBy.equals("editionName") || sortBy.equals("authorsString")) {
+            Page<BookTranslate> pagedResult = bookTranslateRepository.findAllByLanguage(language, paging);
+            System.out.println("get page");
+            List<BookTranslate> bookTranslates = pagedResult.toList();
+            for (BookTranslate bookTranslate : bookTranslates) {
+                Book book = bookRepository.findById(bookTranslate.getBook().getId()).orElseThrow(() -> new RuntimeException("There is on such book"));
+                BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
+                bookWithTranslateList.add(bookWithTranslate);
+            }
+        } else {
+            Page<Book> pagedResult = bookRepository.findAll(paging);
+            List<Book> books = pagedResult.toList();
+            for (Book book : books) {
+                BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(book, language).orElseThrow(() -> new RuntimeException("There is no such translate"));
+                BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
+                bookWithTranslateList.add(bookWithTranslate);
+            }
         }
         return bookWithTranslateList;
     }
@@ -106,17 +108,17 @@ public class BookService {
     public int getAmountOfBooksByKeyWords(String keyWords, Language language) {
         AtomicInteger amount = new AtomicInteger();
         bookTranslateRepository
-                .findAllByTitleContainsOrAuthorsStringContainsIgnoreCaseAndLanguage(keyWords, keyWords, language).forEach((p) -> amount.getAndIncrement());
+                .findAllByKeyWordAndLanguage(keyWords, language.getId()).forEach((p) -> amount.getAndIncrement());
         return Integer.parseInt(amount.toString());
     }
 
     public List<BookWithTranslate> findPaginatedAndLocatedByKeyWords(String keyWords, Language language, int pageNo,
                                                                      int pageSize, String sortBy, String sortType) {
-        if (sortBy == null || sortBy.trim().equals("")) {
-            sortBy = "id";
+        if (sortBy.equals("editionName")) {
+            sortBy = "edition_name";
         }
-        if (sortType == null || sortType.trim().equals("")) {
-            sortType = "asc";
+        if (sortBy.equals("authorsString")) {
+            sortBy = "authors_string";
         }
         Pageable paging;
         if (sortType.trim().equals("dec")) {
@@ -124,15 +126,38 @@ public class BookService {
         } else {
             paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy));
         }
-        Page<BookTranslate> page = bookTranslateRepository.findAllByTitleContainsOrAuthorsStringContainsIgnoreCaseAndLanguage(keyWords,
-                keyWords, language, paging);
-        List<BookTranslate> books = page.toList();
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
-        for (BookTranslate bookTranslate : books) {
-            long bookId = bookTranslate.getBook().getId();
-            Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
-            BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
-            bookWithTranslateList.add(bookWithTranslate);
+        if (sortBy.equals("title") || sortBy.equals("edition_name") || sortBy.equals("authors_string")) {
+            Page<BookTranslate> page = bookTranslateRepository.findAllByKeyWordAndLanguage(keyWords, language.getId(), paging);
+            List<BookTranslate> bookTranslates = page.toList();
+            for (BookTranslate bookTranslate : bookTranslates) {
+                long bookId = bookTranslate.getBook().getId();
+                Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
+                BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
+                bookWithTranslateList.add(bookWithTranslate);
+            }
+        } else {
+            if (sortBy.equals("id")) {
+                paging = PageRequest.of(pageNo, pageSize);
+                Page<BookTranslate> page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByBookId(keyWords, language.getId(), paging);
+                List<BookTranslate> bookTranslates = page.toList();
+                for (BookTranslate bookTranslate : bookTranslates) {
+                    long bookId = bookTranslate.getBook().getId();
+                    Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
+                    BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
+                    bookWithTranslateList.add(bookWithTranslate);
+                }
+            } else {
+                paging = PageRequest.of(pageNo, pageSize);
+                Page<BookTranslate> page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDate(keyWords, language.getId(), paging);
+                List<BookTranslate> bookTranslates = page.toList();
+                for (BookTranslate bookTranslate : bookTranslates) {
+                    long bookId = bookTranslate.getBook().getId();
+                    Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("There is no such book"));
+                    BookWithTranslate bookWithTranslate = new BookWithTranslate(book, bookTranslate);
+                    bookWithTranslateList.add(bookWithTranslate);
+                }
+            }
         }
         return bookWithTranslateList;
     }
