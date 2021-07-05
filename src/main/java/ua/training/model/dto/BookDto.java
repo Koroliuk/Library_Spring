@@ -8,22 +8,22 @@ import java.time.LocalDate;
 
 public class BookDto {
 
-    @NotNull(message = "Publication date is required")
+    @NotNull(message = "{publicationDate.validation.required}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @PastOrPresent(message = "Publication date must be past or present")
+    @PastOrPresent(message = "{publicationDate.validation.message1}")
     private LocalDate publicationDate;
 
-    @NotNull(message = "Price is required")
-    @PositiveOrZero(message = "Price must be positive ot zero")
+    @NotNull(message = "{price.validation.required}")
+    @PositiveOrZero(message = "{price.validation.message1}")
     private BigDecimal price;
 
-    @NotNull(message = "Amount is required")
-    @PositiveOrZero(message = "Amount must be positive ot zero")
-    private int amount;
+    @NotNull(message = "{amount.validation.required}")
+    @PositiveOrZero(message = "{amount.validation.message1}")
+    private Integer amount;
 
     public BookDto() {}
 
-    public BookDto(LocalDate publicationDate, BigDecimal price, int amount) {
+    public BookDto(LocalDate publicationDate, BigDecimal price, Integer amount) {
         this.publicationDate = publicationDate;
         this.price = price;
         this.amount = amount;
@@ -45,11 +45,11 @@ public class BookDto {
         this.price = price;
     }
 
-    public int getAmount() {
+    public Integer getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(Integer amount) {
         this.amount = amount;
     }
 

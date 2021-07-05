@@ -5,24 +5,24 @@ import javax.validation.constraints.Size;
 
 public class BookTranslateDto {
 
-    @NotBlank(message = "Title is required")
-    @Size(min=2, max = 100, message = "The title must have at least 2 and no more than 100 characters")
+    @NotBlank(message = "{title.validation.required}")
+    @Size(min=2, max = 100, message = "{title.validation.message1}")
     private String title;
 
-    @NotBlank(message = "Author or authors is required")
-    @Size(min=2, max = 200, message = "The field must have at least 2 and no more than 200 characters")
+    @NotBlank(message = "{authors.validation.required}")
+    @Size(min=2, max = 200, message = "{authors.validation.message1}")
     private String authorsString;
 
-    @NotBlank(message = "Description is required")
-    @Size(min=2, max = 1000, message = "The description must have at least 2 and no more than 1000 characters")
+    @NotBlank(message = "{description.validation.required}")
+    @Size(min=2, max = 1000, message = "{description.validation.message1}")
     private String description;
 
-    @NotBlank(message = "Book language is required")
-    @Size(min=2, max = 30, message = "The string of language must have at least 2 and no more than 30 characters")
+    @NotBlank(message = "{language.validation.required}")
+    @Size(min=2, max = 30, message = "{language.validation.message1}")
     private String bookLanguage;
 
-    @NotBlank(message = "Edition is required")
-    @Size(min=2, max = 50, message = "The edition name must have at least 2 and no more than 50 characters")
+    @NotBlank(message = "{edition.validation.required}")
+    @Size(min=2, max = 50, message = "{edition.validation.message1}")
     private String edition;
 
     public String getTitle() {
