@@ -33,7 +33,8 @@ public class BookTranslate {
     @Column(length = 200, nullable = false)
     private String authorsString;
 
-    public BookTranslate() {}
+    public BookTranslate() {
+    }
 
     public static class Builder {
         private long id;

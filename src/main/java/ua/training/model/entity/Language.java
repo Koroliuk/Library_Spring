@@ -10,7 +10,7 @@ public class Language {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(length = 2,  nullable = false,  unique = true)
+    @Column(length = 2, nullable = false, unique = true)
     private String name;
 
     public Language(String name) {
