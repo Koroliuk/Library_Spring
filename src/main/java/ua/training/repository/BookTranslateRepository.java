@@ -14,11 +14,11 @@ import java.util.Optional;
 
 @Repository
 public interface BookTranslateRepository extends CrudRepository<BookTranslate, Long> {
+    void deleteAllByBook(Book book);
+
     List<BookTranslate> findBookTranslatesByTitleAndAuthorsString(String title, String authorsString);
 
     Optional<BookTranslate> findByBookAndLanguage(Book book, Language language);
-
-    void deleteAllByBook(Book book);
 
     Page<BookTranslate> findAllByLanguage(Language language, Pageable pageable);
 
