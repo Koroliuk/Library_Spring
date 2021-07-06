@@ -83,7 +83,6 @@ public class BookService {
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
         if (sortBy.equals("title") || sortBy.equals("editionName") || sortBy.equals("authorsString")) {
             Page<BookTranslate> pagedResult = bookTranslateRepository.findAllByLanguage(language, pageable);
-            System.out.println("get page");
             List<BookTranslate> bookTranslates = pagedResult.toList();
             for (BookTranslate bookTranslate : bookTranslates) {
                 Book book = bookRepository.findById(bookTranslate.getBook().getId())

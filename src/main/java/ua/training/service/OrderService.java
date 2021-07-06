@@ -55,8 +55,8 @@ public class OrderService {
         List<Order> orderList = orderRepository.findAllByUser(user);
         for (Order order : orderList) {
             LocalDate now = LocalDate.now();
-            int amountOfDays = Period.between(order.getEndDate(), now).getDays();
-            if (amountOfDays > 0) {
+            Period period = Period.between(order.getEndDate(), now);
+            if (!period.isNegative() && !period.isZero()) {
                 order.setOrderStatus(OrderStatus.OVERDUE);
                 orderRepository.save(order);
             }
