@@ -83,7 +83,6 @@ public class BookService {
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
         if (sortBy.equals("title") || sortBy.equals("editionName") || sortBy.equals("authorsString")) {
             Page<BookTranslate> pagedResult = bookTranslateRepository.findAllByLanguage(language, pageable);
-            System.out.println("get page");
             List<BookTranslate> bookTranslates = pagedResult.toList();
             for (BookTranslate bookTranslate : bookTranslates) {
                 Book book = bookRepository.findById(bookTranslate.getBook().getId())
@@ -128,10 +127,10 @@ public class BookService {
                 pageable = PageRequest.of(pageNo, pageSize);
                 Page<BookTranslate> page;
                 if (sortType.equals("dec")) {
-                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDate(keyWords, language.getId(),
+                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDateDesc(keyWords, language.getId(),
                             pageable);
                 } else  {
-                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDateDesc(keyWords, language.getId(),
+                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDate(keyWords, language.getId(),
                             pageable);
                 }
                 return getBookWithTranslates(page);
@@ -140,21 +139,13 @@ public class BookService {
     }
 
     public int getAmountOfBooks() {
-        Iterable<Book> books = bookRepository.findAll();
-        int result = 0;
-        for (Book ignored : books) {
-            result++;
-        }
-        return result;
+        List<Book> books = (List<Book>) bookRepository.findAll();
+        return books.size();
     }
 
     public int getAmountOfBooksByKeyWords(String keyWords, Language language) {
-        Iterable<BookTranslate> books = bookTranslateRepository.findAllByKeyWordAndLanguage(keyWords, language.getId());
-        int result = 0;
-        for (BookTranslate ignored : books) {
-            result++;
-        }
-        return result;
+        List<BookTranslate> bookTranslates = bookTranslateRepository.findAllByKeyWordAndLanguage(keyWords, language.getId());
+        return bookTranslates.size();
     }
 
     private Pageable getPageable(int pageNo, int pageSize, String sortBy,  String sortType) {

@@ -55,8 +55,8 @@ public class OrderService {
         List<Order> orderList = orderRepository.findAllByUser(user);
         for (Order order : orderList) {
             LocalDate now = LocalDate.now();
-            int amountOfDays = Period.between(order.getEndDate(), now).getDays();
-            if (amountOfDays > 0) {
+            Period period = Period.between(order.getEndDate(), now);
+            if (!period.isNegative() && !period.isZero()) {
                 order.setOrderStatus(OrderStatus.OVERDUE);
                 orderRepository.save(order);
             }
@@ -98,8 +98,8 @@ public class OrderService {
     public List<Order> findAllByUserAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2,
                                                     int pageNo, int pageSize, Language language) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
-        Page<Order> pagedResult = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user, orderStatus1,
-                orderStatus2, paging);
+        Page<Order> pagedResult = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user.getId(),
+                orderStatus1.toString(), orderStatus2.toString(), paging);
         List<Order> orders = pagedResult.toList();
         for (Order order : orders) {
             BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(order.getBook(), language)
@@ -110,30 +110,18 @@ public class OrderService {
     }
 
     public int getAmountByOrderStatus(OrderStatus orderStatus) {
-        Iterable<Order> orders = orderRepository.findAllByOrderStatus(orderStatus);
-        int result = 0;
-        for (Order ignored : orders) {
-            result++;
-        }
-        return result;
+        List<Order> orders = orderRepository.findAllByOrderStatus(orderStatus);
+        return orders.size();
     }
 
     public int getAmountByUserAndOrderStatus(User user, OrderStatus orderStatus) {
-        Iterable<Order> orders = orderRepository.findAllByUserAndOrderStatus(user, orderStatus);
-        int result = 0;
-        for (Order ignored : orders) {
-            result++;
-        }
-        return result;
+        List<Order> orders = orderRepository.findAllByUserAndOrderStatus(user, orderStatus);
+        return orders.size();
     }
 
     public int getAmountByUserAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2) {
-        Iterable<Order> orders = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user, orderStatus1,
-                orderStatus2);
-        int result = 0;
-        for (Order ignored : orders) {
-            result++;
-        }
-        return result;
+        List<Order> orders = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user.getId(),
+                orderStatus1.toString(), orderStatus2.toString());
+        return orders.size();
     }
 }
