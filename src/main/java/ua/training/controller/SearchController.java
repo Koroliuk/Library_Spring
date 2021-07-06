@@ -1,4 +1,6 @@
 package ua.training.controller;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +10,7 @@ import ua.training.service.LanguageService;
 
 @Controller
 public class SearchController {
+    private static final Logger logger = LogManager.getLogger();
 
     private final BookService bookService;
     private final LanguageService languageService;
@@ -54,6 +57,8 @@ public class SearchController {
             model.addAttribute("sortType", sortType);
         }
         model.addAttribute("page", page);
+        logger.info(String.format("Search: there was a search with the following parameters: keyWords='%s', sortBy='%s', " +
+                "sortType='%s'", keyWords, sortBy, sortType));
         return "search";
     }
 }

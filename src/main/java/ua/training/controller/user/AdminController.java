@@ -1,5 +1,7 @@
 package ua.training.controller.user;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -30,6 +32,7 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping(value = "/admin")
 public class AdminController {
+    private static final Logger logger = LogManager.getLogger();
 
     private final static BookConverter converter = new BookConverter();
     private final static BookWithTranslateValidator validator = new BookWithTranslateValidator();
@@ -64,12 +67,14 @@ public class AdminController {
             model.addAttribute("books", bookService.findPaginatedAndLocated(page - 1, amountBooksOnPage, language))
                     .addAttribute("users", userService.findPaginated(0, amountUsersOnPage));
         } else {
+            logger.info("Request the admin home page with incorrect parameters");
             return "redirect:/error";
         }
         model.addAttribute("tab", tab)
                 .addAttribute("currPage", page)
                 .addAttribute("amountOfUserPages", amountOfUserPages)
                 .addAttribute("amountOfBookPages", amountOfBookPages);
+        logger.info("Redirect to the admin home page");
         return "/user/admin/home";
     }
 
@@ -87,6 +92,7 @@ public class AdminController {
         } else {
             model.addAttribute("successCreation", false);
         }
+        logger.info("Admin | Redirect to the add book page");
         return "/user/admin/bookForm";
     }
 
@@ -99,6 +105,7 @@ public class AdminController {
                     .addAttribute("action", "add")
                     .addAttribute("book", bookDto)
                     .addAttribute("container", containerDto);
+            logger.info("Admin | Add book: invalid input data");
             return "/user/admin/bookForm";
         }
         BookTranslateDto bookTranslateDtoUa = containerDto.getDtoList().get(0);
@@ -120,17 +127,22 @@ public class AdminController {
                     .addAttribute("book", bookDto)
                     .addAttribute("container", containerDto)
                     .addAttribute("actionError", true);
+            logger.info(String.format("Admin | Add book: a book with such parameters already exists: titleUa='%s', titleEn='%s', " +
+                    "authorsUa='%s', authorsEn='%s'", titleUa, titleEn, authorsStringUa, authorsStringEn));
             return "/user/admin/bookForm";
         }
         bookService.addBook(book);
         bookTranslateService.addBookTranslate(bookTranslateUa);
         bookTranslateService.addBookTranslate(bookTranslateEn);
+        logger.info(String.format("Admin | Add book: a book with such parameters successfully added to database: titleUa='%s', titleEn='%s', " +
+                "authorsUa='%s', authorsEn='%s'", titleUa, titleEn, authorsStringUa, authorsStringEn));
         return "redirect:/admin/addBook?successCreation=true";
     }
 
     @GetMapping(value = "/deleteBook")
     public String deleteBook(@RequestParam long id) {
         bookService.deleteBookAndTranslatesByBookId(id);
+        logger.info(String.format("Admin | Delete book: a book with id='%d' was successfully deleted", id));
         return "redirect:/admin/home?tab=2&page=1";
     }
 
@@ -161,6 +173,7 @@ public class AdminController {
         } else {
             model.addAttribute("successEditing", false);
         }
+        logger.info("Admin | Redirect to the edit book page");
         return "/user/admin/bookForm";
     }
 
@@ -173,6 +186,7 @@ public class AdminController {
                     .addAttribute("action", "add")
                     .addAttribute("book", bookDto)
                     .addAttribute("container", containerDto);
+            logger.info("Admin | Edit book: invalid input data");
             return "/user/admin/bookForm";
         }
         BookTranslateDto bookTranslateDtoUa = containerDto.getDtoList().get(0);
@@ -195,6 +209,9 @@ public class AdminController {
                     .addAttribute("book", bookDto)
                     .addAttribute("container", containerDto)
                     .addAttribute("actionError", true);
+            logger.info(String.format("Admin | Edit book: a book with one couple of such parameters already exists: " +
+                    "titleUa='%s', titleEn='%s', authorsUa='%s', authorsEn='%s'", titleUa, titleEn, authorsStringUa,
+                    authorsStringEn));
             return "/user/admin/bookForm";
         }
         Book oldBook = bookService.findById(id).orElseThrow(() -> new NoSuchElementException("There is no such book"));
@@ -208,6 +225,8 @@ public class AdminController {
         bookTranslateEn.setId(oldEn.getId());
         bookTranslateService.updateBookTranslate(bookTranslateUa);
         bookTranslateService.updateBookTranslate(bookTranslateEn);
+        logger.info(String.format("Admin | Edit book: a book with such parameters successfully edited: titleUa='%s', " +
+                "titleEn='%s', authorsUa='%s', authorsEn='%s'", titleUa, titleEn, authorsStringUa, authorsStringEn));
         return "redirect:/admin/editBook?id=" + id + "&successEditing=true";
     }
 
@@ -216,6 +235,7 @@ public class AdminController {
         User user = userService.findById(id).orElseThrow(() -> new NoSuchElementException("There is on such user"));
         user.setBlocked(true);
         userService.update(user);
+        logger.info(String.format("Admin | Block user: a user with id='%d' was successfully blocked", id));
         return "redirect:/admin/home?tab=1&page=1";
     }
 
@@ -224,12 +244,14 @@ public class AdminController {
         User user = userService.findById(id).orElseThrow(() -> new NoSuchElementException("There is on such user"));
         user.setBlocked(false);
         userService.update(user);
+        logger.info(String.format("Admin | Unblock user: a user with id='%d' was successfully unblocked", id));
         return "redirect:/admin/home?tab=1&page=1";
     }
 
     @GetMapping(value = "/deleteLibrarian")
     public String deleteLibrarian(@RequestParam long id) {
         userService.deleteById(id);
+        logger.info(String.format("Admin | Delete librarian: a librarian with id='%d' was successfully deleted", id));
         return "redirect:/admin/home?tab=1&page=1";
     }
 
@@ -241,6 +263,7 @@ public class AdminController {
         } else {
             model.addAttribute("successCreation", false);
         }
+        logger.info("Admin | Redirect to the add librarian page");
         return "/user/admin/librarianForm";
     }
 
@@ -248,6 +271,7 @@ public class AdminController {
     public String addLibrarian(@Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", userDto);
+            logger.info("Admin | Add librarian: invalid input data");
             return "/user/admin/librarianForm";
         }
         User user = new User.Builder()
@@ -258,9 +282,12 @@ public class AdminController {
                 .build();
         if (userService.findByLogin(userDto.getLogin()).isPresent()) {
             model.addAttribute("createError", true);
+            logger.info(String.format("Admin | Add librarian: librarian with login='%s' already exists", userDto.getLogin()));
             return "/user/admin/librarianForm";
         }
         userService.singUpUser(user);
+        logger.info(String.format("Admin | Add librarian: librarian with login='%s' was successfully created",
+                userDto.getLogin()));
         return "redirect:/admin/addLibrarian?successCreation=true";
     }
 }

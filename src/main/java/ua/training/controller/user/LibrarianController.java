@@ -1,5 +1,7 @@
 package ua.training.controller.user;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import java.util.NoSuchElementException;
 @Controller
 @RequestMapping(value = "/librarian")
 public class LibrarianController {
+    private static final Logger logger = LogManager.getLogger();
 
     private final UserService userService;
     private final OrderService orderService;
@@ -50,6 +53,7 @@ public class LibrarianController {
                     amountOfOrdersOnPage, currLanguage);
             users = userService.findAllByRole(Role.READER, page - 1, amountOfOrdersOnPage);
         } else {
+            logger.info("Request the librarian home page with incorrect parameters");
             return "redirect:/error";
         }
         model.addAttribute("tab", tab)
@@ -58,23 +62,31 @@ public class LibrarianController {
                 .addAttribute("amountOfUsers", amountOfUsers)
                 .addAttribute("orders", receivedOrders)
                 .addAttribute("readers", users);
+        logger.info("Redirect to the librarian home page");
         return "/user/librarian/home";
     }
 
     @GetMapping(value = "/approveOrder")
     public String approveOrder(@RequestParam long id) {
+        User user = userService.getCurrentUser();
         orderService.approveOrder(id);
+        logger.info(String.format("Librarian | Approve order: librarian %s successfully approve order with id='%d'",
+                user.getLogin(), id));
         return "redirect:/librarian/home?tab=1&page=1";
     }
 
     @GetMapping(value = "/cancelOrder")
     public String cancelOrder(@RequestParam long id) {
+        User user = userService.getCurrentUser();
         orderService.cancelOrder(id);
+        logger.info(String.format("Librarian | Cancel order: librarian %s successfully cancel order with id='%d'",
+                user.getLogin(), id));
         return "redirect:/librarian/home?tab=1&page=1";
     }
 
     @GetMapping(value = "/getReaderBooks")
     public String getUsersBook(@RequestParam long userId, @RequestParam int page, Model model) {
+        User currentUser = userService.getCurrentUser();
         int amountOfBookOnPage = 5;
         Language currLanguage = languageService.getCurrentLanguage();
         User user = userService.findById(userId).orElseThrow(() -> new NoSuchElementException("There is no such user"));
@@ -86,6 +98,8 @@ public class LibrarianController {
                 .addAttribute("amount", amount)
                 .addAttribute("readerId", userId)
                 .addAttribute("currPage", page);
+        logger.info(String.format("Librarian | Get reader's books: librarian %s request the books of reader with id='%s'",
+                currentUser.getLogin(), userId));
         return "/user/librarian/readerBook";
     }
 }
