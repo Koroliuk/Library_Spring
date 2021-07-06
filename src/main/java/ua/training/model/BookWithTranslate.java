@@ -1,7 +1,7 @@
 package ua.training.model;
 
 /**
- * A class that represents the book with its translate
+ * The class that represents a book with its translate
  *
  * @author Yaroslav Koroliuk
  */
@@ -9,11 +9,6 @@ public class BookWithTranslate {
     private Book book;
     private BookTranslate bookTranslate;
 
-    /**
-     * Constructor - creation of a new book with its translate
-     * @param book - a book
-     * @param bookTranslate - a book's translate in some language
-     */
     public BookWithTranslate(Book book, BookTranslate bookTranslate) {
         this.book = book;
         this.bookTranslate = bookTranslate;

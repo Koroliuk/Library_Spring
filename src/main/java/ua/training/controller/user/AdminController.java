@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The class that represents a admin controller
+ */
 @Controller
 @RequestMapping(value = "/admin")
 public class AdminController {
@@ -53,6 +56,13 @@ public class AdminController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * The method that returns an admin home page
+     * @param model - a model
+     * @param tab - a tab number
+     * @param page - a page number
+     * @return - a page view
+     */
     @GetMapping(value = "/home")
     public String getAdminHomePage(Model model, @RequestParam int tab, @RequestParam int page) {
         int amountUsersOnPage = 5;
@@ -78,6 +88,12 @@ public class AdminController {
         return "/user/admin/home";
     }
 
+    /**
+     * The method that returns an add book page
+     * @param model - a model
+     * @param successCreation - a parameter that indicates success of a previous addition
+     * @return - a page view
+     */
     @GetMapping(value = "/addBook")
     public String getAddBookPage(Model model, @RequestParam(required = false) boolean successCreation) {
         List<BookTranslateDto> bookTranslateDtoList = new ArrayList<>();
@@ -96,6 +112,14 @@ public class AdminController {
         return "/user/admin/bookForm";
     }
 
+    /**
+     * The method that processes book addition
+     * @param bookDto - a book data
+     * @param bindingResult - a binding validation result of a previous parameter
+     * @param containerDto - a container that contains book translates
+     * @param model - a model
+     * @return - a page view
+     */
     @PostMapping(value = "/addBook")
     public String addBook(@Valid @ModelAttribute("book") BookDto bookDto, BindingResult bindingResult,
                           @ModelAttribute("list") BookTranslateContainerDto containerDto,
@@ -114,9 +138,9 @@ public class AdminController {
                 .orElseThrow(() -> new NoSuchElementException("There is no such language"));
         Language en = languageService.findByName("en")
                 .orElseThrow(() -> new NoSuchElementException("There is no such language"));
-        Book book = converter.getBookFromDto(bookDto);
-        BookTranslate bookTranslateUa = converter.getBookTranslateFromDto(bookTranslateDtoUa, uk, book);
-        BookTranslate bookTranslateEn = converter.getBookTranslateFromDto(bookTranslateDtoEn, en, book);
+        Book book = converter.convertDtoIntoBook(bookDto);
+        BookTranslate bookTranslateUa = converter.convertBookTranslateIntoDto(bookTranslateDtoUa, uk, book);
+        BookTranslate bookTranslateEn = converter.convertBookTranslateIntoDto(bookTranslateDtoEn, en, book);
         String titleUa = bookTranslateUa.getTitle();
         String authorsStringUa = bookTranslateUa.getAuthorsString();
         String titleEn = bookTranslateEn.getTitle();
@@ -139,6 +163,11 @@ public class AdminController {
         return "redirect:/admin/addBook?successCreation=true";
     }
 
+    /**
+     * The method that deletes a book
+     * @param id - a book id
+     * @return - a page view
+     */
     @GetMapping(value = "/deleteBook")
     public String deleteBook(@RequestParam long id) {
         bookService.deleteBookAndTranslatesByBookId(id);
@@ -146,6 +175,13 @@ public class AdminController {
         return "redirect:/admin/home?tab=2&page=1";
     }
 
+    /**
+     * The method that returns an edit book page
+     * @param id - a book id
+     * @param successEditing - a parameter that indicates success of a previous editing
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/editBook")
     public String getEditPage(@RequestParam long id, @RequestParam(required = false) boolean successEditing,
                               Model model) {
@@ -159,10 +195,10 @@ public class AdminController {
                 .orElseThrow(() -> new NoSuchElementException("There is no such translate"));
         BookTranslate bookTranslateEn = bookTranslateService.findByBookAndLanguage(book, en)
                 .orElseThrow(() -> new NoSuchElementException("There is no such translate"));
-        BookDto bookDto = converter.getDtoFromBook(book);
+        BookDto bookDto = converter.convertBookIntoDto(book);
         List<BookTranslateDto> bookTranslateDtoList = new ArrayList<>();
-        bookTranslateDtoList.add(converter.getDtoFromBookTranslate(bookTranslateUa));
-        bookTranslateDtoList.add(converter.getDtoFromBookTranslate(bookTranslateEn));
+        bookTranslateDtoList.add(converter.convertDtoIntoBookTranslate(bookTranslateUa));
+        bookTranslateDtoList.add(converter.convertDtoIntoBookTranslate(bookTranslateEn));
         BookTranslateContainerDto containerDto = new BookTranslateContainerDto(bookTranslateDtoList);
         model.addAttribute("action", "edit")
                 .addAttribute("id", id)
@@ -177,6 +213,15 @@ public class AdminController {
         return "/user/admin/bookForm";
     }
 
+    /**
+     * The method that processes book editing
+     * @param id - a book id
+     * @param bookDto - a book data
+     * @param bindingResult - a binding validation result of a previous parameter
+     * @param containerDto - a container that contains book translates
+     * @param model - a model
+     * @return - a page view
+     */
     @PostMapping(value = "/editBook")
     public String editBook(@RequestParam long id, @Valid @ModelAttribute("book") BookDto bookDto, BindingResult bindingResult,
                            @Valid @ModelAttribute("list") BookTranslateContainerDto containerDto,
@@ -195,9 +240,9 @@ public class AdminController {
                 .orElseThrow(() -> new NoSuchElementException("There is no such language at database"));
         Language en = languageService.findByName("en")
                 .orElseThrow(() -> new NoSuchElementException("There is no such language at database"));
-        Book book = converter.getBookFromDto(bookDto);
-        BookTranslate bookTranslateUa = converter.getBookTranslateFromDto(bookTranslateDtoUa, uk, book);
-        BookTranslate bookTranslateEn = converter.getBookTranslateFromDto(bookTranslateDtoEn, en, book);
+        Book book = converter.convertDtoIntoBook(bookDto);
+        BookTranslate bookTranslateUa = converter.convertBookTranslateIntoDto(bookTranslateDtoUa, uk, book);
+        BookTranslate bookTranslateEn = converter.convertBookTranslateIntoDto(bookTranslateDtoEn, en, book);
         String titleUa = bookTranslateUa.getTitle();
         String titleEn = bookTranslateEn.getTitle();
         String authorsStringUa = bookTranslateUa.getAuthorsString();
@@ -230,6 +275,11 @@ public class AdminController {
         return "redirect:/admin/editBook?id=" + id + "&successEditing=true";
     }
 
+    /**
+     * The method that processes blocking of a user
+     * @param id - a user id
+     * @return - a page view
+     */
     @GetMapping(value = "/blockUser")
     public String blockUser(@RequestParam long id) {
         User user = userService.findById(id).orElseThrow(() -> new NoSuchElementException("There is on such user"));
@@ -239,6 +289,11 @@ public class AdminController {
         return "redirect:/admin/home?tab=1&page=1";
     }
 
+    /**
+     * The method that processes unblocking of a user
+     * @param id - a user id
+     * @return - a page view
+     */
     @GetMapping(value = "/unblockUser")
     public String unblockUser(@RequestParam long id) {
         User user = userService.findById(id).orElseThrow(() -> new NoSuchElementException("There is on such user"));
@@ -248,6 +303,11 @@ public class AdminController {
         return "redirect:/admin/home?tab=1&page=1";
     }
 
+    /**
+     * The method that processes deleting of a librarian
+     * @param id - a librarian id
+     * @return - a page view
+     */
     @GetMapping(value = "/deleteLibrarian")
     public String deleteLibrarian(@RequestParam long id) {
         userService.deleteById(id);
@@ -255,6 +315,12 @@ public class AdminController {
         return "redirect:/admin/home?tab=1&page=1";
     }
 
+    /**
+     * The method that returns an add librarian page
+     * @param model - a model
+     * @param successCreation - a parameter that indicates success of a previous addition
+     * @return - a page view
+     */
     @GetMapping(value = "/addLibrarian")
     public String getAddLibrarianPage(Model model, @RequestParam(required = false) boolean successCreation) {
         model.addAttribute("user", new UserDto());
@@ -267,6 +333,13 @@ public class AdminController {
         return "/user/admin/librarianForm";
     }
 
+    /**
+     * The method that processes addition of a librarian
+     * @param userDto - a librarian data
+     * @param bindingResult - a binding validation result
+     * @param model - a model
+     * @return - a page view
+     */
     @PostMapping(value = "addLibrarian")
     public String addLibrarian(@Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {

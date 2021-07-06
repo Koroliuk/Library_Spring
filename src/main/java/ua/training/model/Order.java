@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.time.Period;
 
 /**
- * A class that represents the order with properties <b>user</b>, <b>book</b>, <b>bookTranslate</b>,
+ * The class that represents an order with properties <b>user</b>, <b>book</b>, <b>bookTranslate</b>,
  * <b>startDate</b>, <b>endDate</b>, <b>orderStatus</b>
  *
  * @author Yaroslav Koroliuk
@@ -43,7 +43,7 @@ public class Order {
     private OrderStatus orderStatus;
 
     /**
-     * A method that calculates a user's fine if the order is overdue
+     * The method that calculates a user's fine if the order is overdue
      *
      * @return - fine
      */
@@ -57,16 +57,11 @@ public class Order {
         return BigDecimal.ZERO;
     }
 
-    /**
-     * Constructor - creation of a new empty order
-     *
-     * @see Order#Order(Builder)
-     */
     public Order() {
     }
 
     /**
-     * A class that represents a builder pattern for an Order class
+     * The class that represents a builder pattern for an Order class
      */
     public static class Builder {
         private long id;
@@ -107,7 +102,7 @@ public class Order {
         }
 
         /**
-         * A method that create a new order by builder
+         * The method that creates a new order from a builder
          *
          * @return - a created order
          */
@@ -117,7 +112,7 @@ public class Order {
     }
 
     /**
-     * Constructor - creation of a new order by builder
+     * Constructor - creation of a new order from a builder
      *
      * @see Order#Order()
      */

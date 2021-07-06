@@ -3,7 +3,7 @@ package ua.training.model;
 import javax.persistence.*;
 
 /**
- * A class that represents the language with property <b>name</b>
+ * The class that represents the language with property <b>name</b>
  *
  * @author Yaroslav Koroliuk
  */
@@ -18,19 +18,9 @@ public class Language {
     @Column(length = 2, nullable = false, unique = true)
     private String name;
 
-    /**
-     * Constructor - creation of a new language
-     *
-     * @see Language#Language(String)
-     */
     public Language() {
     }
 
-    /**
-     * Constructor - creation of a new language with name
-     *
-     * @see Language#Language()
-     */
     public Language(String name) {
         this.name = name;
     }

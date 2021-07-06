@@ -5,7 +5,7 @@ import ua.training.model.enums.Role;
 import javax.persistence.*;
 
 /**
- * A class that represents the user with properties <b>login</b>, <b>password</b>, <b>role</b>, <b>isBlocked</b>
+ * The class that represents a user with properties <b>login</b>, <b>password</b>, <b>role</b>, <b>isBlocked</b>
  *
  * @author Yaroslav Koroliuk
  */
@@ -30,16 +30,11 @@ public class User {
     @Column(nullable = false)
     private boolean isBlocked;
 
-    /**
-     * Constructor - creation of a new empty user
-     *
-     * @see User#User(Builder)
-     */
     public User() {
     }
 
     /**
-     * A class that represents a builder pattern for an User class
+     * The class that represents a builder pattern for an User class
      */
     public static class Builder {
         private long id;
@@ -74,7 +69,7 @@ public class User {
         }
 
         /**
-         * A method that create a new user by builder
+         * The method that creates a new user from a builder
          *
          * @return - a created user
          */
@@ -84,7 +79,7 @@ public class User {
     }
 
     /**
-     * Constructor - creation of a new user by a builder
+     * Constructor - creation of a new user from a builder
      *
      * @param builder - user builder
      * @see User#User()

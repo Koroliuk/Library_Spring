@@ -3,7 +3,7 @@ package ua.training.model;
 import javax.persistence.*;
 
 /**
- * A class that represents the book's translate in some language
+ * The class that represents a book's translate in some language
  *
  * @author Yaroslav Koroliuk
  */
@@ -38,16 +38,11 @@ public class BookTranslate {
     @Column(length = 200, nullable = false)
     private String authorsString;
 
-    /**
-     * Constructor - creation of a new empty translate
-     *
-     * @see BookTranslate#BookTranslate(BookTranslate.Builder)
-     */
     public BookTranslate() {
     }
 
     /**
-     * A class that represents a builder pattern for an BookTranslate class
+     * The class that represents a builder pattern for an BookTranslate class
      */
     public static class Builder {
         private long id;
@@ -100,7 +95,7 @@ public class BookTranslate {
         }
 
         /**
-         * A method that create a new translate by builder
+         * The method that creates a new translate from a builder
          *
          * @return - a created translate
          */
@@ -110,7 +105,7 @@ public class BookTranslate {
     }
 
     /**
-     * Constructor - creation of a new translate by a builder
+     * Constructor - creation of a new translate from a builder
      *
      * @param builder - translate builder
      * @see BookTranslate#BookTranslate()

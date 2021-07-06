@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * A class that represents the book
+ * The class that represents a book
  *
  * @author Yaroslav Koroliuk
  */
@@ -26,16 +26,11 @@ public class Book {
     @Column(nullable = false)
     private int amount;
 
-    /**
-     * Constructor - creation of a new empty book
-     *
-     * @see Book#Book(Builder)
-     */
     public Book() {
     }
 
     /**
-     * A class that represents a builder pattern for an Book class
+     * The class that represents a builder pattern for an Book class
      */
     public static class Builder {
         private long id;
@@ -64,7 +59,7 @@ public class Book {
         }
 
         /**
-         * A method that create a new book by builder
+         * The method that creates a new book from a builder
          *
          * @return - a created book
          */
@@ -74,7 +69,7 @@ public class Book {
     }
 
     /**
-     * Constructor - creation of a new book by a builder
+     * Constructor - creation of a new book from a builder
      *
      * @param builder - book builder
      * @see Book#Book()
