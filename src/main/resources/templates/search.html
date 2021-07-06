@@ -43,21 +43,27 @@
                 </th:block>
             </select>
         </div>
-        <div>
+        <th:block sec:authorize="isAnonymous()">
+            <a class="btn btn-outline-dark mr-2" data-mdb-ripple-color="dark" href="/signup"
+               th:text="#{header.signup}"></a>
+            <a class="btn btn-dark" href="/login" th:text="#{header.login}"></a>
+        </th:block>
+        <th:block sec:authorize="isAuthenticated()">
             <a class="btn btn-dark" href="/logout" th:text="#{header.logout}"></a>
-        </div>
+        </th:block>
     </div>
 </header>
 <div class="container text-center">
+    <div>
+        <form method="post" action="/search?page=1">
+            <label>
+                <input class="form-control me-2 mr-2" type="text" name="keyWords" th:placeholder="#{index.search}">
+            </label>
+            <input class="btn btn-outline-success p-1" type="submit" th:value="#{index.find}">
+        </form>
+    </div>
+    <a sec:authorize="isAnonymous()" class="text-info mt-2 mb-2" href="/login" th:text="#{search.loginMessage}"></a>
     <div class="row justify-content-center">
-        <div>
-            <form method="post" action="/search?page=1">
-                <label>
-                    <input class="form-control me-2 mr-2" type="text" name="keyWords" th:placeholder="#{index.search}">
-                </label>
-                <input class="btn btn-outline-success p-1" type="submit" th:value="#{index.find}">
-            </form>
-        </div>
         <div th:if="${books != null || books.size() > 0}" class="col-auto">
             <table class="table table-responsive table-bordered table-hover">
                 <thead class="thead-light">
@@ -94,9 +100,14 @@
                     <td th:text="${bookWithTranslate.book.publicationDate}"></td>
                     <td th:text="${bookWithTranslate.bookTranslate.description}"></td>
                     <td class="justify-content-sm-between" style="width: 200px;">
-                        <a sec:authorize="isAuthenticated()" type="button" class="btn btn-outline-info"
-                           th:href="@{'/reader/orderBook?id='+${bookWithTranslate.book.id}}"
-                           th:text="#{reader.orderButtonTitle}"></a>
+                        <th:block th:if="${bookWithTranslate.book.amount > 0}">
+                            <a sec:authorize="isAuthenticated()" type="button" class="btn btn-outline-info"
+                               th:href="@{'/reader/orderBook?id='+${bookWithTranslate.book.id}}"
+                               th:text="#{reader.orderButtonTitle}"></a>
+                        </th:block>
+                        <th:block sec:authorize="isAuthenticated()" th:if="${bookWithTranslate.book.amount == 0}">
+                            <span class="text-danger" th:text="#{search.lackOfAmount}"></span>
+                        </th:block>
                         <span sec:authorize="isAnonymous()">-</span>
                     </td>
                 </tr>
@@ -112,7 +123,13 @@
                th:href="@{'/search?keyWords='+${keyWords}+'&page='+${page}+'&sortBy='+${sortBy}+'&sortType='+${sortType}}"></a>
         </th:block>
     </div>
+    <br/>
+    <div sec:authorize="isAuthenticated()">
+        <a href="/reader/home?tab=1&page=1" th:text="#{user.to.homeCabinet}"></a>
+    </div>
+    <div sec:authorize="isAnonymous()">
+        <a href="/" th:text="#{signup.to.home}"></a>
+    </div>
 </div>
-<div th:replace="fragment/footer.html :: footer"></div>
 </body>
 </html>

@@ -9,8 +9,16 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.Set;
 
+/**
+ * Class that represents a validator of book translates
+ */
 public class BookWithTranslateValidator {
 
+    /**
+     * The method validating a container that contains book translates
+     * @param containerDto - a container of book translates
+     * @return - a boolean value that reflects the validity of the container
+     */
     public boolean validate(BookTranslateContainerDto containerDto) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();

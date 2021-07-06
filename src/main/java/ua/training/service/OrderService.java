@@ -6,11 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.training.model.BookTranslate;
-import ua.training.model.Language;
-import ua.training.model.Order;
-import ua.training.model.User;
+import ua.training.model.*;
 import ua.training.model.enums.OrderStatus;
+import ua.training.repository.BookRepository;
 import ua.training.repository.BookTranslateRepository;
 import ua.training.repository.OrderRepository;
 
@@ -19,14 +17,20 @@ import java.time.Period;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Class that represents an order service
+ */
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final BookRepository bookRepository;
     private final BookTranslateRepository bookTranslateRepository;
 
-    public OrderService(OrderRepository orderRepository, BookTranslateRepository bookTranslateRepository) {
+    public OrderService(OrderRepository orderRepository, BookRepository bookRepository,
+                        BookTranslateRepository bookTranslateRepository) {
         this.orderRepository = orderRepository;
+        this.bookRepository = bookRepository;
         this.bookTranslateRepository = bookTranslateRepository;
     }
 
@@ -47,16 +51,23 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("There is no such order"));
         order.setOrderStatus(OrderStatus.CANCELED);
+        Book book = order.getBook();
+        book.setAmount(book.getAmount()+1);
+        bookRepository.save(book);
         orderRepository.save(order);
     }
 
+    /**
+     * The a method that checks whether orders have expired and changes status accordingly
+     * @param user - a user
+     */
     @Transactional
     public void checkUserOrders(User user) {
         List<Order> orderList = orderRepository.findAllByUser(user);
         for (Order order : orderList) {
             LocalDate now = LocalDate.now();
-            int amountOfDays = Period.between(order.getEndDate(), now).getDays();
-            if (amountOfDays > 0) {
+            Period period = Period.between(order.getEndDate(), now);
+            if (!period.isNegative() && !period.isZero()) {
                 order.setOrderStatus(OrderStatus.OVERDUE);
                 orderRepository.save(order);
             }
@@ -64,7 +75,12 @@ public class OrderService {
     }
 
     public void deleteById(long id) {
-        orderRepository.deleteById(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("There is no such order"));
+        Book book = order.getBook();
+        book.setAmount(book.getAmount()+1);
+        bookRepository.save(book);
+        orderRepository.delete(order);
     }
 
     @Transactional
@@ -94,12 +110,22 @@ public class OrderService {
         return orders;
     }
 
+    /**
+     * The method that finds all user orders that have either first or second order status
+     * @param user - a user
+     * @param orderStatus1 - a first order status
+     * @param orderStatus2 - a second order status
+     * @param pageNo - a page number
+     * @param pageSize - a page size
+     * @param language - a language
+     * @return - a list of orders
+     */
     @Transactional
     public List<Order> findAllByUserAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2,
                                                     int pageNo, int pageSize, Language language) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
-        Page<Order> pagedResult = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user, orderStatus1,
-                orderStatus2, paging);
+        Page<Order> pagedResult = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user.getId(),
+                orderStatus1.toString(), orderStatus2.toString(), paging);
         List<Order> orders = pagedResult.toList();
         for (Order order : orders) {
             BookTranslate bookTranslate = bookTranslateRepository.findByBookAndLanguage(order.getBook(), language)
@@ -110,30 +136,25 @@ public class OrderService {
     }
 
     public int getAmountByOrderStatus(OrderStatus orderStatus) {
-        Iterable<Order> orders = orderRepository.findAllByOrderStatus(orderStatus);
-        int result = 0;
-        for (Order ignored : orders) {
-            result++;
-        }
-        return result;
+        List<Order> orders = orderRepository.findAllByOrderStatus(orderStatus);
+        return orders.size();
     }
 
     public int getAmountByUserAndOrderStatus(User user, OrderStatus orderStatus) {
-        Iterable<Order> orders = orderRepository.findAllByUserAndOrderStatus(user, orderStatus);
-        int result = 0;
-        for (Order ignored : orders) {
-            result++;
-        }
-        return result;
+        List<Order> orders = orderRepository.findAllByUserAndOrderStatus(user, orderStatus);
+        return orders.size();
     }
 
+    /**
+     * The method that finds amount of user orders that have either first or second order status
+     * @param user - a user
+     * @param orderStatus1 - a first order status
+     * @param orderStatus2 - a second order status
+     * @return - a list of orders
+     */
     public int getAmountByUserAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2) {
-        Iterable<Order> orders = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user, orderStatus1,
-                orderStatus2);
-        int result = 0;
-        for (Order ignored : orders) {
-            result++;
-        }
-        return result;
+        List<Order> orders = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user.getId(),
+                orderStatus1.toString(), orderStatus2.toString());
+        return orders.size();
     }
 }

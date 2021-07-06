@@ -101,7 +101,7 @@
             <div style="padding-left: 10px;">
                 <span class="text-danger" th:if="${#fields.hasErrors('global')}"
                       th:text="#{order.error.message.checkDates}"></span>
-                <span class="text-info" style="text-align: justify;" th:if="${amountError == true}"
+                <span class="text-danger" style="text-align: justify;" th:if="${amountError == true}"
                       th:text="#{order.error.message.lackOfAmount}"></span>
                 <span class="text-danger" style="text-align: justify;" id="warning3" hidden
                       th:text="#{order.validation.message3}"></span>

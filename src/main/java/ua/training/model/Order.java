@@ -7,9 +7,16 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 
+/**
+ * The class that represents an order with properties <b>user</b>, <b>book</b>, <b>bookTranslate</b>,
+ * <b>startDate</b>, <b>endDate</b>, <b>orderStatus</b>
+ *
+ * @author Yaroslav Koroliuk
+ */
 @Entity
 @Table(name = "orders")
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -35,16 +42,27 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
+    /**
+     * The method that calculates a user's fine if the order is overdue
+     *
+     * @return - fine
+     */
     public BigDecimal getFine() {
-        LocalDate now = LocalDate.now();
-        int amountOfDays = Period.between(endDate, now).getDays();
-        return book.getPrice().multiply(new
-                BigDecimal(amountOfDays)).multiply(BigDecimal.valueOf(0.01));
+        if (orderStatus.equals(OrderStatus.OVERDUE)) {
+            LocalDate now = LocalDate.now();
+            int amountOfDays = Period.between(endDate, now).getDays();
+            return book.getPrice().multiply(new
+                    BigDecimal(amountOfDays)).multiply(BigDecimal.valueOf(0.01));
+        }
+        return BigDecimal.ZERO;
     }
 
     public Order() {
     }
 
+    /**
+     * The class that represents a builder pattern for an Order class
+     */
     public static class Builder {
         private long id;
         private User user;
@@ -83,11 +101,21 @@ public class Order {
             return this;
         }
 
+        /**
+         * The method that creates a new order from a builder
+         *
+         * @return - a created order
+         */
         public Order build() {
             return new Order(this);
         }
     }
 
+    /**
+     * Constructor - creation of a new order from a builder
+     *
+     * @see Order#Order()
+     */
     private Order(Builder builder) {
         this.id = builder.id;
         this.user = builder.user;

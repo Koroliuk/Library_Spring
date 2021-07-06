@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * Class that represents a book service
+ */
 @Service
 public class BookService {
 
@@ -37,6 +40,10 @@ public class BookService {
         bookRepository.save(book);
     }
 
+    /**
+     * The method that deletes the book and its translates
+     * @param bookId - a book id
+     */
     @Transactional
     public void deleteBookAndTranslatesByBookId(long bookId) {
         Book book = bookRepository.findById(bookId)
@@ -49,6 +56,12 @@ public class BookService {
         return bookRepository.findById(id);
     }
 
+    /**
+     * The method that finds the book with its translate in specified language
+     * @param id - a book id
+     * @param language a language
+     * @return - a book with translate object
+     */
     @Transactional
     public BookWithTranslate findByIdLocated(long id, Language language) {
         Book book = bookRepository.findById(id).orElseThrow(() -> new NoSuchElementException("There is no such book"));
@@ -57,6 +70,13 @@ public class BookService {
         return new BookWithTranslate(book, bookTranslate);
     }
 
+    /**
+     * The method that finds a page of books with its located translates
+     * @param pageNo - a page number
+     * @param pageSize - a page size
+     * @param language - a language
+     * @return - a list of books with translates
+     */
     @Transactional
     public List<BookWithTranslate> findPaginatedAndLocated(int pageNo, int pageSize, Language language) {
         Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id"));
@@ -76,6 +96,16 @@ public class BookService {
         return bookWithTranslateList;
     }
 
+    /**
+     * The method that finds a page of books with its located translates that sorted in some way
+     * that defines by <b>sortBy<b/> and <b>sortType</b> properties
+     * @param pageNo - a page number
+     * @param pageSize - a page size
+     * @param language - a language
+     * @param sortBy - a parameter that indicates which field to sort by
+     * @param sortType - a type of sorting
+     * @return - a list of books with translates
+     */
     @Transactional
     public List<BookWithTranslate> findPaginatedAndLocatedWithSortByAndSortType(int pageNo, int pageSize, Language language,
                                                                                 String sortBy, String sortType) {
@@ -83,7 +113,6 @@ public class BookService {
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
         if (sortBy.equals("title") || sortBy.equals("editionName") || sortBy.equals("authorsString")) {
             Page<BookTranslate> pagedResult = bookTranslateRepository.findAllByLanguage(language, pageable);
-            System.out.println("get page");
             List<BookTranslate> bookTranslates = pagedResult.toList();
             for (BookTranslate bookTranslate : bookTranslates) {
                 Book book = bookRepository.findById(bookTranslate.getBook().getId())
@@ -104,6 +133,17 @@ public class BookService {
         return bookWithTranslateList;
     }
 
+    /**
+     * The method that finds by key words a page of books with its located translates that sorted in some way
+     * that defines by <b>sortBy<b/> and <b>sortType</b> properties
+     * @param keyWords - a search key words
+     * @param language - a language
+     * @param pageNo - a page number
+     * @param pageSize - a page size
+     * @param sortBy - a parameter that indicates which field to sort by
+     * @param sortType - a type of sorting
+     * @return - a list of books with translates
+     */
     @Transactional
     public List<BookWithTranslate> findPaginatedAndLocatedByKeyWords(String keyWords, Language language, int pageNo,
                                                                      int pageSize, String sortBy, String sortType) {
@@ -128,10 +168,10 @@ public class BookService {
                 pageable = PageRequest.of(pageNo, pageSize);
                 Page<BookTranslate> page;
                 if (sortType.equals("dec")) {
-                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDate(keyWords, language.getId(),
+                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDateDesc(keyWords, language.getId(),
                             pageable);
                 } else  {
-                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDateDesc(keyWords, language.getId(),
+                    page = bookTranslateRepository.findAllByKeyWordAndLanguageOrderByDate(keyWords, language.getId(),
                             pageable);
                 }
                 return getBookWithTranslates(page);
@@ -140,23 +180,23 @@ public class BookService {
     }
 
     public int getAmountOfBooks() {
-        Iterable<Book> books = bookRepository.findAll();
-        int result = 0;
-        for (Book ignored : books) {
-            result++;
-        }
-        return result;
+        List<Book> books = (List<Book>) bookRepository.findAll();
+        return books.size();
     }
 
     public int getAmountOfBooksByKeyWords(String keyWords, Language language) {
-        Iterable<BookTranslate> books = bookTranslateRepository.findAllByKeyWordAndLanguage(keyWords, language.getId());
-        int result = 0;
-        for (BookTranslate ignored : books) {
-            result++;
-        }
-        return result;
+        List<BookTranslate> bookTranslates = bookTranslateRepository.findAllByKeyWordAndLanguage(keyWords, language.getId());
+        return bookTranslates.size();
     }
 
+    /**
+     * The method that creates a pageable depending on <b>sortBy<b/> and <b>sortType</b> properties
+     * @param pageNo - a page number
+     * @param pageSize - a page size
+     * @param sortBy - a parameter that indicates which field to sort by
+     * @param sortType - a type of sorting
+     * @return - a created pageable
+     */
     private Pageable getPageable(int pageNo, int pageSize, String sortBy,  String sortType) {
         Pageable pageable;
         if (sortType.trim().equals("dec")) {
@@ -167,6 +207,11 @@ public class BookService {
         return pageable;
     }
 
+    /**
+     * The method that returns list of books with translates from page
+     * @param page - a page
+     * @return - a list of books
+     */
     private List<BookWithTranslate> getBookWithTranslates(Page<BookTranslate> page) {
         List<BookWithTranslate> bookWithTranslateList = new ArrayList<>();
         List<BookTranslate> bookTranslates = page.toList();

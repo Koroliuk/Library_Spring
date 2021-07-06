@@ -1,5 +1,7 @@
 package ua.training.controller.user;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,9 +19,13 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The class that represents a reader controller
+ */
 @Controller
 @RequestMapping(value = "/reader")
 public class ReaderController {
+    private static final Logger logger = LogManager.getLogger();
 
     private final BookService bookService;
     private final LanguageService languageService;
@@ -34,6 +40,14 @@ public class ReaderController {
         this.orderService = orderService;
     }
 
+    /**
+     * The method that returns a reader home page
+     * @param tab - a tab number
+     * @param page - a page number
+     * @param successOrder - a not required parameter that indicates success of a previous order
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/home")
     public String getReaderHomePage(@RequestParam int tab, @RequestParam int page,
                                     @RequestParam(required = false) boolean successOrder, Model model) {
@@ -76,6 +90,7 @@ public class ReaderController {
             canceledAndReceivedOrders = orderService.findAllByUserAnd2OrderStatus(currentUser, OrderStatus.CANCELED,
                     OrderStatus.RECEIVED, page - 1, amountOrdersOnPage, currentLanguage);
         } else {
+            logger.info("Request the reader home page with incorrect parameters");
             return "redirect:/error";
         }
         if (successOrder) {
@@ -91,18 +106,35 @@ public class ReaderController {
                 .addAttribute("orders1", approvedAndOverdueOrders)
                 .addAttribute("orders2", readingHoleOrders)
                 .addAttribute("orders3", canceledAndReceivedOrders);
+        logger.info("Redirect to the reader home page");
         return "/user/reader/home";
     }
 
+    /**
+     * The method that returns an order book page
+     * @param id - an order id
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/orderBook")
     public String getOrderBookPage(@RequestParam long id, Model model) {
         Language currLanguage = languageService.getCurrentLanguage();
         BookWithTranslate bookWithTranslate = bookService.findByIdLocated(id, currLanguage);
         model.addAttribute("bookWithTranslate", bookWithTranslate)
                 .addAttribute("order", new OrderDto());
+        logger.info("Redirect to the make-order page");
         return "/user/reader/orderForm";
     }
 
+    /**
+     * The method that processes a book order
+     * @param orderDto - an order data
+     * @param bindingResult - a binding validation result
+     * @param bookId - a book id
+     * @param userLogin - a user login
+     * @param model - a model
+     * @return - a page view
+     */
     @PostMapping(value = "/orderBook")
     public String orderBook(@Valid @ModelAttribute("order") OrderDto orderDto, BindingResult bindingResult,
                             @RequestParam long bookId, @RequestParam String userLogin, Model model) {
@@ -111,6 +143,7 @@ public class ReaderController {
             BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
             model.addAttribute("bookWithTranslate", bookWithTranslate)
                     .addAttribute("order", orderDto);
+            logger.info("Reader | Order book: invalid input data");
             return "/user/reader/orderForm";
         }
         if (orderDto.getEndDate().isBefore(orderDto.getStartDate())) {
@@ -118,6 +151,7 @@ public class ReaderController {
             BookWithTranslate bookWithTranslate = bookService.findByIdLocated(bookId, currLanguage);
             model.addAttribute("bookWithTranslate", bookWithTranslate)
                     .addAttribute("order", orderDto);
+            logger.info("Reader | Order book: invalid input data");
             return "/user/reader/orderForm";
         }
         Book book = bookService.findById(bookId).orElseThrow(() -> new NoSuchElementException("There is no such book"));
@@ -126,6 +160,7 @@ public class ReaderController {
             model.addAttribute("bookWithTranslate", bookWithTranslate)
                     .addAttribute("order", orderDto)
                     .addAttribute("amountError", true);
+            logger.info("Reader | Order book: there are no available copies of the book");
             return "/user/reader/orderForm";
         }
         book.setAmount(book.getAmount() - 1);
@@ -140,15 +175,27 @@ public class ReaderController {
                 .orderStatus(orderDto.getOrderType().equals("subscription") ? OrderStatus.RECEIVED : OrderStatus.READER_HOLE)
                 .build();
         orderService.addOrder(order);
+        logger.info(String.format("Reader | Order book: reader %s successfully order book with id='%d'", userLogin, bookId));
         return "redirect:/reader/home?tab=1&page=1&successOrder=true";
     }
 
+    /**
+     * The method that deletes an order
+     * @param orderId - an order id
+     * @param tab - a tab number that indicates an order group
+     * @return - a page view
+     */
     @GetMapping(value = "/deleteOrder")
     public String deleteOrder(@RequestParam int orderId, @RequestParam int tab) {
+        User user = userService.getCurrentUser();
         orderService.deleteById(orderId);
         if (tab > 0 && tab <= 3) {
+            logger.info(String.format("Reader | Delete order: reader %s successfully delete order with id='%d'",
+                    user.getLogin(), orderId));
             return "redirect:/reader/home?tab=" + tab + "&page=1";
         } else {
+            logger.info(String.format("Reader | Delete order: an error occurred when user %s was deleting order with id='%d'",
+                    user.getLogin(), orderId));
             return "error/error";
         }
     }

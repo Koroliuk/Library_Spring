@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * Class that represents a user service
+ */
 @Service
 public class UserService {
 
@@ -76,6 +79,10 @@ public class UserService {
         return result;
     }
 
+    /**
+     * The method that returns a current user from SecurityContextHolder
+     * @return - a current user
+     */
     public User getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = ((UserDetails) principal).getUsername();

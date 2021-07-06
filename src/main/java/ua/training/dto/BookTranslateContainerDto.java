@@ -3,6 +3,7 @@ package ua.training.dto;
 import java.util.List;
 
 public class BookTranslateContainerDto {
+
     private List<BookTranslateDto> dtoList;
 
     public BookTranslateContainerDto(List<BookTranslateDto> dtoHashMap) {
