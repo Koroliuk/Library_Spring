@@ -4,9 +4,15 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * A class that represents the book
+ *
+ * @author Yaroslav Koroliuk
+ */
 @Entity
 @Table(name = "book")
 public class Book {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -20,9 +26,17 @@ public class Book {
     @Column(nullable = false)
     private int amount;
 
+    /**
+     * Constructor - creation of a new empty book
+     *
+     * @see Book#Book(Builder)
+     */
     public Book() {
     }
 
+    /**
+     * A class that represents a builder pattern for an Book class
+     */
     public static class Builder {
         private long id;
         private LocalDate publicationDate;
@@ -49,11 +63,22 @@ public class Book {
             return this;
         }
 
+        /**
+         * A method that create a new book by builder
+         *
+         * @return - a created book
+         */
         public Book build() {
             return new Book(this);
         }
     }
 
+    /**
+     * Constructor - creation of a new book by a builder
+     *
+     * @param builder - book builder
+     * @see Book#Book()
+     */
     public Book(Builder builder) {
         this.id = builder.id;
         this.publicationDate = builder.publicationDate;

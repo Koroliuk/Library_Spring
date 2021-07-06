@@ -2,6 +2,11 @@ package ua.training.model;
 
 import javax.persistence.*;
 
+/**
+ * A class that represents the language with property <b>name</b>
+ *
+ * @author Yaroslav Koroliuk
+ */
 @Entity
 @Table(name = "language")
 public class Language {
@@ -13,11 +18,21 @@ public class Language {
     @Column(length = 2, nullable = false, unique = true)
     private String name;
 
-    public Language(String name) {
-        this.name = name;
+    /**
+     * Constructor - creation of a new language
+     *
+     * @see Language#Language(String)
+     */
+    public Language() {
     }
 
-    public Language() {
+    /**
+     * Constructor - creation of a new language with name
+     *
+     * @see Language#Language()
+     */
+    public Language(String name) {
+        this.name = name;
     }
 
     public long getId() {
