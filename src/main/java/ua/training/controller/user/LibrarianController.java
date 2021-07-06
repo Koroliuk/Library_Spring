@@ -19,6 +19,9 @@ import ua.training.service.UserService;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The class that represents a librarian controller
+ */
 @Controller
 @RequestMapping(value = "/librarian")
 public class LibrarianController {
@@ -34,6 +37,13 @@ public class LibrarianController {
         this.languageService = languageService;
     }
 
+    /**
+     * The method that returns a librarian home page
+     * @param tab - a tab number
+     * @param page - a page number
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/home")
     public String getLibrarianHomePage(@RequestParam int tab, @RequestParam int page, Model model) {
         int amountOfOrdersOnPage = 5;
@@ -66,6 +76,11 @@ public class LibrarianController {
         return "/user/librarian/home";
     }
 
+    /**
+     * The method that approves an order
+     * @param id - order id
+     * @return - a page view
+     */
     @GetMapping(value = "/approveOrder")
     public String approveOrder(@RequestParam long id) {
         User user = userService.getCurrentUser();
@@ -75,6 +90,11 @@ public class LibrarianController {
         return "redirect:/librarian/home?tab=1&page=1";
     }
 
+    /**
+     * The method that cancels an order
+     * @param id - order id
+     * @return - a page view
+     */
     @GetMapping(value = "/cancelOrder")
     public String cancelOrder(@RequestParam long id) {
         User user = userService.getCurrentUser();
@@ -84,6 +104,13 @@ public class LibrarianController {
         return "redirect:/librarian/home?tab=1&page=1";
     }
 
+    /**
+     * The method that returns a subscription page of a specified user
+     * @param userId - a user id
+     * @param page - a page number
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/getReaderBooks")
     public String getUsersBook(@RequestParam long userId, @RequestParam int page, Model model) {
         User currentUser = userService.getCurrentUser();

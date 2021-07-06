@@ -4,6 +4,11 @@ import ua.training.model.enums.Role;
 
 import javax.persistence.*;
 
+/**
+ * The class that represents a user with properties <b>login</b>, <b>password</b>, <b>role</b>, <b>isBlocked</b>
+ *
+ * @author Yaroslav Koroliuk
+ */
 @Entity
 @Table(name = "users")
 public class User {
@@ -28,6 +33,9 @@ public class User {
     public User() {
     }
 
+    /**
+     * The class that represents a builder pattern for an User class
+     */
     public static class Builder {
         private long id;
         private String login;
@@ -60,11 +68,22 @@ public class User {
             return this;
         }
 
+        /**
+         * The method that creates a new user from a builder
+         *
+         * @return - a created user
+         */
         public User build() {
             return new User(this);
         }
     }
 
+    /**
+     * Constructor - creation of a new user from a builder
+     *
+     * @param builder - user builder
+     * @see User#User()
+     */
     private User(Builder builder) {
         this.id = builder.id;
         this.login = builder.login;

@@ -21,6 +21,9 @@ import ua.training.service.UserService;
 
 import javax.validation.Valid;
 
+/**
+ * The class that represents an account controller
+ */
 @Controller
 public class AccountController {
     private static final Logger logger = LogManager.getLogger();
@@ -34,6 +37,11 @@ public class AccountController {
         this.userService = userService;
     }
 
+    /**
+     * The method that returns a registration page
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/signup")
     public String getSighUpPage(Model model) {
         model.addAttribute("user", new UserDto());
@@ -41,6 +49,12 @@ public class AccountController {
         return "signup";
     }
 
+    /**
+     * The method that register a new user in the system
+     * @param userDto - a user data
+     * @param bindingResult - a binding validation result
+     * @return - a page view
+     */
     @PostMapping(value = "/signup")
     public String sighUp(@Valid @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -63,6 +77,10 @@ public class AccountController {
         return "redirect:/signup?success=true";
     }
 
+    /**
+     * The method that returns a login page
+     * @return - a page view
+     */
     @GetMapping("/login")
     public String showLoginForm() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -74,6 +92,10 @@ public class AccountController {
         return "redirect:/error";
     }
 
+    /**
+     * The method that returns a page for a blocked user
+     * @return - a page view
+     */
     @GetMapping("/user/blocked")
     public String getBlockedPage() {
         logger.info("Redirect to the page of a blocked user");

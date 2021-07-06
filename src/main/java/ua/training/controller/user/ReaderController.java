@@ -19,6 +19,9 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * The class that represents a reader controller
+ */
 @Controller
 @RequestMapping(value = "/reader")
 public class ReaderController {
@@ -37,6 +40,14 @@ public class ReaderController {
         this.orderService = orderService;
     }
 
+    /**
+     * The method that returns a reader home page
+     * @param tab - a tab number
+     * @param page - a page number
+     * @param successOrder - a not required parameter that indicates success of a previous order
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/home")
     public String getReaderHomePage(@RequestParam int tab, @RequestParam int page,
                                     @RequestParam(required = false) boolean successOrder, Model model) {
@@ -99,6 +110,12 @@ public class ReaderController {
         return "/user/reader/home";
     }
 
+    /**
+     * The method that returns an order book page
+     * @param id - an order id
+     * @param model - a model
+     * @return - a page view
+     */
     @GetMapping(value = "/orderBook")
     public String getOrderBookPage(@RequestParam long id, Model model) {
         Language currLanguage = languageService.getCurrentLanguage();
@@ -109,6 +126,15 @@ public class ReaderController {
         return "/user/reader/orderForm";
     }
 
+    /**
+     * The method that processes a book order
+     * @param orderDto - an order data
+     * @param bindingResult - a binding validation result
+     * @param bookId - a book id
+     * @param userLogin - a user login
+     * @param model - a model
+     * @return - a page view
+     */
     @PostMapping(value = "/orderBook")
     public String orderBook(@Valid @ModelAttribute("order") OrderDto orderDto, BindingResult bindingResult,
                             @RequestParam long bookId, @RequestParam String userLogin, Model model) {
@@ -153,6 +179,12 @@ public class ReaderController {
         return "redirect:/reader/home?tab=1&page=1&successOrder=true";
     }
 
+    /**
+     * The method that deletes an order
+     * @param orderId - an order id
+     * @param tab - a tab number that indicates an order group
+     * @return - a page view
+     */
     @GetMapping(value = "/deleteOrder")
     public String deleteOrder(@RequestParam int orderId, @RequestParam int tab) {
         User user = userService.getCurrentUser();

@@ -10,6 +10,9 @@ import ua.training.repository.BookTranslateRepository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Class that represents a book tranlsate service
+ */
 @Service
 public class BookTranslateService {
 

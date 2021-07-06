@@ -19,6 +19,9 @@ import java.time.Period;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Class that represents an order service
+ */
 @Service
 public class OrderService {
 
@@ -50,6 +53,10 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    /**
+     * The a method that checks whether orders have expired and changes status accordingly
+     * @param user - a user
+     */
     @Transactional
     public void checkUserOrders(User user) {
         List<Order> orderList = orderRepository.findAllByUser(user);
@@ -94,6 +101,16 @@ public class OrderService {
         return orders;
     }
 
+    /**
+     * The method that finds all user orders that have either first or second order status
+     * @param user - a user
+     * @param orderStatus1 - a first order status
+     * @param orderStatus2 - a second order status
+     * @param pageNo - a page number
+     * @param pageSize - a page size
+     * @param language - a language
+     * @return - a list of orders
+     */
     @Transactional
     public List<Order> findAllByUserAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2,
                                                     int pageNo, int pageSize, Language language) {
@@ -119,6 +136,13 @@ public class OrderService {
         return orders.size();
     }
 
+    /**
+     * The method that finds amount of user orders that have either first or second order status
+     * @param user - a user
+     * @param orderStatus1 - a first order status
+     * @param orderStatus2 - a second order status
+     * @return - a list of orders
+     */
     public int getAmountByUserAnd2OrderStatus(User user, OrderStatus orderStatus1, OrderStatus orderStatus2) {
         List<Order> orders = orderRepository.findAllByUserAndOrderStatusOrOrderStatus(user.getId(),
                 orderStatus1.toString(), orderStatus2.toString());

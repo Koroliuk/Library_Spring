@@ -1,5 +1,10 @@
 package ua.training.model;
 
+/**
+ * The class that represents a book with its translate
+ *
+ * @author Yaroslav Koroliuk
+ */
 public class BookWithTranslate {
     private Book book;
     private BookTranslate bookTranslate;
