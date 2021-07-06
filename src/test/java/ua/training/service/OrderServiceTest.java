@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ua.training.model.*;
 import ua.training.model.enums.OrderStatus;
 import ua.training.model.enums.Role;
+import ua.training.repository.BookRepository;
 import ua.training.repository.BookTranslateRepository;
 import ua.training.repository.OrderRepository;
 
@@ -29,6 +30,9 @@ public class OrderServiceTest {
 
     @InjectMocks
     private OrderService orderService;
+
+    @Mock
+    private BookRepository bookRepository;
 
     @Mock
     private BookTranslateRepository bookTranslateRepository;
@@ -156,11 +160,14 @@ public class OrderServiceTest {
     @Test
     public void cancelOrder() {
         long orderId = 1L;
+        int amountOld = book2.getAmount();
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order13));
 
-        orderService.cancelOrder(1L);
+        orderService.cancelOrder(orderId);
 
+        verify(bookRepository).save(order13.getBook());
         verify(orderRepository).save(order13);
+        assertEquals(amountOld+1, book2.getAmount());
     }
 
     @Test
@@ -168,7 +175,7 @@ public class OrderServiceTest {
         long orderId = 1L;
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> orderService.cancelOrder(1L));
+        assertThrows(NoSuchElementException.class, () -> orderService.cancelOrder(orderId));
     }
 
     @Test
@@ -184,9 +191,22 @@ public class OrderServiceTest {
     @Test
     public void deleteById() {
         long orderId = 1L;
+        int amountOld = book2.getAmount();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order13));
+
         orderService.deleteById(orderId);
 
-        verify(orderRepository).deleteById(orderId);
+        verify(bookRepository).save(order13.getBook());
+        verify(orderRepository).delete(order13);
+        assertEquals(amountOld+1, book2.getAmount());
+    }
+
+    @Test
+    public void deleteByWithNoExistsId() {
+        long orderId = 1L;
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> orderService.deleteById(orderId));
     }
 
     @Test

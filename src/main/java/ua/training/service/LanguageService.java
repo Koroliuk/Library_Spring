@@ -32,14 +32,14 @@ public class LanguageService {
      * The method that calls once and adds Ukrainian and English languages
      *  to the database
      */
-    @PostConstruct
-    private void initLanguages() {
-        Language uk = new Language("uk");
-        languageRepository.save(uk);
-
-        Language en = new Language("en");
-        languageRepository.save(en);
-    }
+//    @PostConstruct
+//    private void initLanguages() {
+//        Language uk = new Language("uk");
+//        languageRepository.save(uk);
+//
+//        Language en = new Language("en");
+//        languageRepository.save(en);
+//    }
 
     /**
      * The method that returns a current language from LocaleContextHolder

@@ -6,11 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.training.model.BookTranslate;
-import ua.training.model.Language;
-import ua.training.model.Order;
-import ua.training.model.User;
+import ua.training.model.*;
 import ua.training.model.enums.OrderStatus;
+import ua.training.repository.BookRepository;
 import ua.training.repository.BookTranslateRepository;
 import ua.training.repository.OrderRepository;
 
@@ -26,10 +24,13 @@ import java.util.NoSuchElementException;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final BookRepository bookRepository;
     private final BookTranslateRepository bookTranslateRepository;
 
-    public OrderService(OrderRepository orderRepository, BookTranslateRepository bookTranslateRepository) {
+    public OrderService(OrderRepository orderRepository, BookRepository bookRepository,
+                        BookTranslateRepository bookTranslateRepository) {
         this.orderRepository = orderRepository;
+        this.bookRepository = bookRepository;
         this.bookTranslateRepository = bookTranslateRepository;
     }
 
@@ -50,6 +51,9 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("There is no such order"));
         order.setOrderStatus(OrderStatus.CANCELED);
+        Book book = order.getBook();
+        book.setAmount(book.getAmount()+1);
+        bookRepository.save(book);
         orderRepository.save(order);
     }
 
@@ -71,7 +75,12 @@ public class OrderService {
     }
 
     public void deleteById(long id) {
-        orderRepository.deleteById(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("There is no such order"));
+        Book book = order.getBook();
+        book.setAmount(book.getAmount()+1);
+        bookRepository.save(book);
+        orderRepository.delete(order);
     }
 
     @Transactional
